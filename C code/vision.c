@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <state.h>
 
 
 /* The following function estimates the horizon based on the pitch and roll angles */
@@ -84,6 +85,8 @@ int main(void)
 	int obj_img[Y*X]; //Possibly temporary
 	int grid[GRID_ROWS*GRID_COLUMNS];
 	float m, b;
+	float theta = stateGetNedToBodyEulers_f()->theta;
+    float phi = stateGetNedToBodyEulers_f()->phi;
 	
 	horizonEstimator(theta,phi,pitchGain,Y,&m,&b);
 	
