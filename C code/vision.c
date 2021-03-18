@@ -5,24 +5,23 @@
 /* The following function estimates the horizon based on the pitch and roll angles */
 void horizonEstimator(int theta, int phi, int pitchGain, int Y, float *m, float *b)
 {
-	//Needs to be checked
-	*b = (Y/2) + pitchGain*theta;
-	*m = tan(phi*(M_PI/180.0)); //Check whether angles are given in degrees or radians
+	*b = (Y/2) - pitchGain*theta;
+	*m = tan(phi*(M_PI/180.0));
 	return;
 }
 
 /* The following function returns 1 if an object is completely above or below the horizon, meaning it should be filtered out. Includes a buffer zone */
-int HorizonFilter(int img[240][520], float m, float b, int BUFFER)
+int HorizonFilter(int *img, float m, float b, int BUFFER, int X, int Y)
 {
 	//Needs to be checked
 	int i, j;
 	int xMin = 1000, yMin = 1000, xMax = -1, yMax = -1;
 	int y1,y2,y3,y4,x1,x2,x3,x4;
-	for(i = 0; i < 240; i++)
+	for(i = 0; i < Y; i++)
 	{
-		for(j = 0; j < 520; j++)
+		for(j = 0; j < X; j++)
 		{
-			if(img[i][j] != 0)
+			if(img[i*X + j] != 0)
 			{
 				if(i > yMax){yMax = i;}
 				if(i < yMin){yMin = i;}
@@ -84,6 +83,9 @@ int main(void)
 	int img[Y*X]; //Convert X by Y array to 1D
 	int obj_img[Y*X]; //Possibly temporary
 	int grid[GRID_ROWS*GRID_COLUMNS];
+	float m, b;
+	
+	horizonEstimator(theta,phi,pitchGain,Y,&m,&b);
 	
 	printf("Hello");
 }
