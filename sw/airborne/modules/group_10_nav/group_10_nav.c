@@ -20,12 +20,14 @@
 #define VERBOSE_PRINT(...)
 #endif
 
+/*
+
+*/
 
 enum navigation_state_t {
   DIRECTION,
   FIRST_STOP_FLOOR,
   SECOND_STOP_FLOOR,
-//  SLOW_FLOOR,
   STOP_LEFT,
   HARD_LEFT,
   SOFT_LEFT,
@@ -196,20 +198,8 @@ void group_10_nav_periodic(void)
       }
       break;
 
-//    case SLOW_FLOOR:
-//      guidance_h_set_guided_body_vel(0.5*slow_velocity, 0);
-//      guidance_h_set_guided_heading_rate(-hard_heading_rate);
-      
-//      current_heading_rate = -hard_heading_rate;
-//      current_velocity = slow_velocity;
-//      if(i == 3){
-//        navigation_state = DIRECTION;
-//      } else{
-//        navigation_state = SLOW_FLOOR;
-//        i++;
-//      }
-      
-//      break;
+
+
 
     
 
@@ -219,7 +209,7 @@ void group_10_nav_periodic(void)
       
       current_heading_rate = -stop_heading_rate;
       current_velocity = 0;
-      if(i == 2){
+      if(i == 3){
         navigation_state = SECOND_STOP_FLOOR;
       } else{
         navigation_state = FIRST_STOP_FLOOR;
