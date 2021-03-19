@@ -23,7 +23,8 @@
 
 enum navigation_state_t {
   DIRECTION,
-  STOP_FLOOR,
+  FIRST_STOP_FLOOR,
+  SECOND_STOP_FLOOR,
 //  SLOW_FLOOR,
   STOP_LEFT,
   HARD_LEFT,
@@ -44,7 +45,7 @@ int floor_count_threshold_low = 3500;
 int floor_count_threshold_high = 2500;
 int straight_heading_threshold = 6;	 // threshold straight [rad/s]
 int soft_heading_threshold = 4;	     	 // threshold slow [rad/s]
-int hard_heading_threshold = 2; 		 // threshold hard [rad/s]
+int hard_heading_threshold = 2;		 // threshold hard [rad/s]
 int stop_heading_threshold = 5;	 	 // threshold stop [rad/s]
 
 
@@ -157,10 +158,7 @@ void group_10_nav_periodic(void)
       guidance_h_set_guided_body_vel(current_velocity,0);
       if(floor_count < floor_count_threshold_low){
 	i = 0;
-        navigation_state = STOP_FLOOR;
-//      } else if(floor_count < floor_count_threshold_high){
-//	i = 0;
-//        navigation_state = SLOW_FLOOR;
+        navigation_state = FIRST_STOP_FLOOR;
       } else if(direction[count][3] > straight_heading_threshold){
         navigation_state = STRAIGHT;
       } else if(direction[count][3] > soft_heading_threshold && direction[count][2] > soft_heading_threshold+1 && direction[count][2] > direction[count][4]){
@@ -197,16 +195,38 @@ void group_10_nav_periodic(void)
       
 //      break;
 
-    case STOP_FLOOR:
+    
+
+    case FIRST_STOP_FLOOR:
       guidance_h_set_guided_body_vel(0, 0);
       guidance_h_set_guided_heading_rate(-stop_heading_rate);
       
       current_heading_rate = -stop_heading_rate;
       current_velocity = 0;
       if(i == 2){
+        navigation_state = SECOND_STOP_FLOOR;
+      } else{
+        navigation_state = FIRST_STOP_FLOOR;
+        i++;
+      }
+      
+      break;
+
+    case SECOND_STOP_FLOOR:
+      guidance_h_set_guided_body_vel(0, 0);
+      if (floor_count > floor_count_threshold_high && direction[count][3] > straight_heading_threshold) {
+        guidance_h_set_guided_heading_rate(0);
+        current_heading_rate = 0;
+        current_velocity = 0;
+        navigation_state = DIRECTION;
+      }
+
+      current_heading_rate = -stop_heading_rate;
+      current_velocity = 0;
+      if(i == 2){
         navigation_state = DIRECTION;
       } else{
-        navigation_state = STOP_FLOOR;
+        navigation_state = SECOND_STOP_FLOOR;
         i++;
       }
       
