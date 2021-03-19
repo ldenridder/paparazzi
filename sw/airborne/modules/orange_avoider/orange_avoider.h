@@ -14,7 +14,7 @@
 #define ORANGE_AVOIDER_H
 
 // settings
-extern float oag_color_count_frac;
+extern float oa_color_count_frac;
 
 // functions
 extern void orange_avoider_init(void);
