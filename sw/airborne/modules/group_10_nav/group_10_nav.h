@@ -19,7 +19,7 @@ extern int soft_heading_threshold;	     	 // threshold slow [rad/s]
 extern int hard_heading_threshold; 		 // threshold hard [rad/s]
 extern int stop_heading_threshold;	 	 // threshold stop [rad/s]
 extern int count;
-extern int direction[40][7];
+extern int direction[52][7];
 
 extern void group_10_nav_init(void);
 extern void group_10_nav_periodic(void);
