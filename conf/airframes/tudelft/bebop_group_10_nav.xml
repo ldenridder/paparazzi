@@ -24,6 +24,7 @@
       <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="110"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="120"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="140"/>
+
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
@@ -82,8 +83,7 @@
       <define name="COLOR_OBJECT_DETECTOR_FPS2" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_DRAW2" value="1"/>
     </module>
-    <module name="mav_course_exercise">
-      <define name="MAV_COURSE_EXERCISE_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION1_ID"/>
+    <module name="group_10_nav">
       <define name="FLOOR_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION2_ID"/>
     </module>
     <module name="video_rtp_stream">
