@@ -10,7 +10,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="GROUP10NAV">
-         <dl_setting var="slow_velocity" min="0" step="1" max="10"/>
+         <dl_setting var="slow_velocity" min="0" step="0.5" max="10"/>
          <dl_setting var="fast_velocity" min="0" step="1" max="20"/>
          <dl_setting var="soft_heading_rate" min="0" step="2.5" max="45" unit="rad" alt_unit="deg"/>
          <dl_setting var="hard_heading_rate" min="0" step="2.5" max="90" unit="rad" alt_unit="deg"/>
@@ -20,6 +20,7 @@
          <dl_setting var="hard_heading_threshold" min="0" step="1" max="10"/>
          <dl_setting var="stop_heading_threshold" min="0" step="1" max="10"/>
 	 <dl_setting var="floor_count_threshold_low" min="0" step="1" max="5000"/>
+	 <dl_setting var="count" min="0" step="1" max="7"/>
       </dl_settings>
     </dl_settings>
   </settings>

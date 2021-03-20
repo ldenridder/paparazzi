@@ -39,10 +39,10 @@ enum navigation_state_t {
 };
 
 // define settings
-float fast_velocity = 5.f;               // fast flight speed [m/s]
-float slow_velocity = 2.5f;  		 // slow flight speed (used for turning) [m/s]
-float soft_heading_rate = 3.14159f/8;	 // soft heading rate [rad/s]
-float hard_heading_rate = 3.14159f/4; 	 // fast heading rate [rad/s]
+float fast_velocity = 4.f;               // fast flight speed [m/s]
+float slow_velocity = 2.f;  		 // slow flight speed (used for turning) [m/s]
+float soft_heading_rate = 3.14159f/12;	 // soft heading rate [rad/s]
+float hard_heading_rate = 3.14159f/6; 	 // fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;    // stop heading rate [rad/s]
 int floor_count_threshold_low = 3500;
 int floor_count_threshold_high = 3500;
@@ -53,8 +53,8 @@ int stop_heading_threshold = 5;	 	 // threshold stop [rad/s]
 
 
 
-int count = -1;				 // counter for the direction
-int direction[52][7] = {0, 0, 0, 9, 0, 0, 0, // (1 STRAIGHT
+int count = 0;				 // counter for the direction
+/*int direction[52][7] = {0, 0, 0, 9, 0, 0, 0, // (1 STRAIGHT
 			0, 0, 0, 9, 0, 0, 0, // (2
 			0, 0, 9, 5, 0, 0, 0, // (3 SOFT LEFT
 			0, 0, 9, 5, 0, 0, 0, // (4
@@ -110,7 +110,15 @@ int direction[52][7] = {0, 0, 0, 9, 0, 0, 0, // (1 STRAIGHT
 			0, 0, 0, 0, 0, 0, 8, // (38
 			0, 0, 0, 0, 0, 0, 8, // (39
 			0, 0, 0, 0, 0, 0, 8};   // direction confidence  
-
+*/
+int direction[9][7] =  {0, 0, 0, 9, 0, 0, 0, // (1 STRAIGHT
+			0, 0, 0, 5, 0, 0, 0, // (9 SLOW STRAIGHT
+			9, 0, 0, 2, 0, 0, 0, // (9 STOP LEFT
+			0, 6, 0, 3, 0, 0, 0, // (25 HARD LEFT
+			0, 0, 9, 5, 0, 0, 0, // (3 SOFT LEFT
+			0, 0, 9, 5, 0, 0, 0, // (3 SOFT RIGHT
+			0, 0, 0, 3, 0, 6, 0, // (17 HARD RIGHT 
+			0, 0, 0, 0, 0, 0, 8}; // (37 STOP RIGHT
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = DIRECTION;   // current state in state machine
@@ -172,7 +180,7 @@ void group_10_nav_periodic(void)
  VERBOSE_PRINT("Time state: %d \n", count); 
  switch (navigation_state){
     case DIRECTION:
-      count++; // Increase counter for the time of the direction array
+      //count++; // Increase counter for the time of the direction array
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
@@ -308,7 +316,7 @@ void group_10_nav_periodic(void)
       navigation_state = DIRECTION;
       break;
 
-    case SOFT_STRAIGHT: // The drone flies straight but slower because of obstacles nearby
+    case SLOW_STRAIGHT: // The drone flies straight but slower because of obstacles nearby
       guidance_h_set_guided_heading_rate(0);
       guidance_h_set_guided_body_vel(slow_velocity, 0);
 
