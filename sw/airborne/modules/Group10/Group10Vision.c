@@ -12,6 +12,17 @@ void avoiderInit(void){
 }
 
 void avoiderPeriodic(void){
+	int X = 520;
+	int Y = 240;
+	int n_rows = 10;
+	int n_columns = 10;
+	int grid_height = Y/n_rows;
+	int grid_width = X/n_rows;
+	int x_grad[X*Y], y_grad[X*Y], xx_grad[X*Y], yy_grad[X*Y], xy_grad[X*Y];
+	int shape_index[X*Y];
+	int hmat_z[X*Y];
+	int navInput[X];
+	
 	grad_x(img,x_grad,X,Y);
 	grad_y(img,y_grad,X,Y);
 	grad_x(x_grad,xx_grad,X,Y);
@@ -36,8 +47,9 @@ void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_i
 {
 //Check which variables actually need to be arrays
 	int i, j;
-	double T, D, L1, L2
+	double T, D, L1, L2;
 	double Lk1, Lk2;
+	double Ldiff, Ladds;
 	for(i=0;i<Y;i++)
 	{
 		for(j=0;j<X;j++)
