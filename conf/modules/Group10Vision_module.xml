@@ -1,15 +1,17 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="Group10">
+<module dir="Group10" name ="Group10Vision_module">
   <doc>
     <description>
     
     </description>
   </doc>
-
+  <settings>
+  </settings>
 	<header>
 		<file name="Group10Vision.h"/>
 	</header>
-	<init fun="visionInit()"/>
+  <init fun="visionInit()"/>
+  <periodic fun="visionPeriodic()" freq="4"/>
 	<makefile target="ap|nps">
 		<file name="Group10Vision.c"/>
 	</makefile>

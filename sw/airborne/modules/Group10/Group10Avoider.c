@@ -1,4 +1,4 @@
-#include "modules/project/Group10Avoider.h"
+#include "modules/Group10/Group10Avoider.h"
 #include "subsystems/abi.h"
 
 //added
@@ -119,23 +119,23 @@ void avoiderPeriodic(void)
       if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
 	i = 0;
         navigation_state = FIRST_STOP_FLOOR;
-      } else if(direction[count][3] > straight_heading_threshold){ //Fly straight when possible
+      } else if(navInput[3] > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
-      } else if(direction[count][3] > soft_heading_threshold && direction[count][2] > soft_heading_threshold+1 && direction[count][2] > direction[count][4]){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
+      } else if(navInput[3] > soft_heading_threshold && navInput[2] > soft_heading_threshold+1 && navInput[2] > navInput[4]){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
         navigation_state = SOFT_LEFT;
-      } else if(direction[count][3] > soft_heading_threshold && direction[count][4] > soft_heading_threshold+1){
+      } else if(navInput[3] > soft_heading_threshold && navInput[4] > soft_heading_threshold+1){
         navigation_state = SOFT_RIGHT;
-      } else if(direction[count][3] > soft_heading_threshold && direction[count][1] > soft_heading_threshold+1 && direction[count][1] > direction[count][5]){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
+      } else if(navInput[3] > soft_heading_threshold && navInput[1] > soft_heading_threshold+1 && navInput[1] > navInput[5]){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
 	navigation_state = HARD_LEFT;
-      } else if(direction[count][3] > soft_heading_threshold && direction[count][5] > soft_heading_threshold+1){
+      } else if(navInput[3] > soft_heading_threshold && navInput[5] > soft_heading_threshold+1){
         navigation_state = HARD_RIGHT;
-      } else if(direction[count][3] > soft_heading_threshold){ //Fly slower straight
+      } else if(navInput[3] > soft_heading_threshold){ //Fly slower straight
         navigation_state = SLOW_STRAIGHT;
-      } else if(direction[count][3] > hard_heading_threshold && direction[count][1] > hard_heading_threshold+1 && direction[count][1] > direction[count][5]){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
+      } else if(navInput[3] > hard_heading_threshold && navInput[1] > hard_heading_threshold+1 && navInput[1] > navInput[5]){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
 	navigation_state = HARD_LEFT;
-      } else if(direction[count][3] > hard_heading_threshold && direction[count][5] > hard_heading_threshold+1){
+      } else if(navInput[3] > hard_heading_threshold && navInput[5] > hard_heading_threshold+1){
         navigation_state = HARD_RIGHT;
-      } else if(direction[count][0] > stop_heading_threshold && direction[count][0] > direction[count][6]){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
+      } else if(navInput[0] > stop_heading_threshold && navInput[0] > navInput[6]){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
 	navigation_state = STOP_LEFT;
       } else{
         navigation_state = STOP_RIGHT;
@@ -147,41 +147,61 @@ void avoiderPeriodic(void)
 
 
     case FIRST_STOP_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
-      guidance_h_set_guided_body_vel(0, 0);
-      guidance_h_set_guided_heading_rate(-stop_heading_rate);
+          guidance_h_set_guided_body_vel(0, 0);
+          guidance_h_set_guided_heading_rate(-stop_heading_rate);
 
-      current_heading_rate = -stop_heading_rate;
-      current_velocity = 0;
-      if(i == 3){ // After three iterations the 90 degrees rotations is achieved
-        navigation_state = SECOND_STOP_FLOOR;
-      } else{
-        navigation_state = FIRST_STOP_FLOOR;
-        i++;
-      }
+          current_heading_rate = -stop_heading_rate;
+          current_velocity = 0;
+          if(i == 3){ // After three iterations the 90 degrees rotations is achieved
+            navigation_state = SECOND_STOP_FLOOR;
+          } else{
+            navigation_state = FIRST_STOP_FLOOR;
+            i++;
+          }
 
-      break;
+          break;
 
-    case SECOND_STOP_FLOOR: //This checks whether this time there is enough floor and there are no objects in front of you otherwise it rotates another 90 degrees
-      guidance_h_set_guided_body_vel(0, 0);
-      if (floor_count > floor_count_threshold_high && direction[count][3] > straight_heading_threshold) {
-        guidance_h_set_guided_heading_rate(0);
-        current_heading_rate = 0;
-        current_velocity = 0;
-        navigation_state = DIRECTION;
-      }
-      else {
-        guidance_h_set_guided_heading_rate(-stop_heading_rate);
-        current_heading_rate = 0;
-        current_velocity = 0;
-        if(i == 6){
-          navigation_state = DIRECTION;
-        } else{
-          navigation_state = SECOND_STOP_FLOOR;
-          i++;
-      }
-      }
+	case SECOND_STOP_FLOOR: //This checks whether this time there is enough floor and there are no objects in front of you otherwise it rotates another 90 degrees
+	  guidance_h_set_guided_body_vel(0, 0);
+	  if (floor_count > floor_count_threshold_high && navInput[3] > straight_heading_threshold) {
+		guidance_h_set_guided_heading_rate(0);
+		current_heading_rate = 0;
+		current_velocity = 0;
+		navigation_state = DIRECTION;
+	  }
+	  else {
+		guidance_h_set_guided_heading_rate(-stop_heading_rate);
+		current_heading_rate = 0;
+		current_velocity = 0;
+		if(i == 6){
+		  navigation_state = DIRECTION;
+		} else{
+		  navigation_state = SECOND_STOP_FLOOR;
+		  i++;
+	  }
+	  }
 
-      break;
+	  break;
+
+	case STOP_LEFT: // The drone is stopped and rotates with a large heading rate
+	  guidance_h_set_guided_body_vel(0, 0);
+	  guidance_h_set_guided_heading_rate(-stop_heading_rate);
+
+	  current_heading_rate = -stop_heading_rate;
+	  current_velocity = 0;
+	  navigation_state = DIRECTION;
+
+	  break;
+
+	case HARD_LEFT: // The drone flies slow and rotates with a pretty large heading rate
+	  guidance_h_set_guided_body_vel(slow_velocity, 0);
+	  guidance_h_set_guided_heading_rate(-hard_heading_rate);
+
+	  current_heading_rate = -hard_heading_rate;
+	  current_velocity = slow_velocity;
+	  navigation_state = DIRECTION;
+
+	  break;
 
     case STOP_LEFT: // The drone is stopped and rotates with a large heading rate
       guidance_h_set_guided_body_vel(0, 0);

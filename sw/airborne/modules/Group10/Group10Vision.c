@@ -1,17 +1,17 @@
 #include <stdio.h>
 #include <math.h>
-#include "Group10Vision.h"
+#include "modules/Group10/Group10Vision.h"
 #include "subsystems/abi.h"
 
 #ifndef PROCESS_FPS
 #define PROCESS_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
 
-void avoiderInit(void){
+void visionInit(void){
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
 }
 
-void avoiderPeriodic(void){
+void visionPeriodic(void){
 	grad_x(img,x_grad,X,Y);
 	grad_y(img,y_grad,X,Y);
 	grad_x(x_grad,xx_grad,X,Y);
