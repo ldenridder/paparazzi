@@ -5,12 +5,22 @@
     
     </description>
   </doc>
-	<header>
+  
+  <settings>
+    <dl_settings>
+      <dl_settings name="GROUP10_Vis">
+         <dl_setting var="X" min="0" step="0.5" max="10"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  
+  <header>
 		<file name="Group10Vision.h"/>
-	</header>
+  </header>
+
   <init fun="visionInit()"/>
   <periodic fun="visionPeriodic()" freq="4"/>
-	<makefile target="ap|nps">
-		<file name="Group10Vision.c"/>
-	</makefile>
+  <makefile target="ap|nps">
+	<file name="Group10Vision.c"/>
+  </makefile>
 </module>

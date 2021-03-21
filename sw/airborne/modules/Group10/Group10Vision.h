@@ -1,8 +1,10 @@
-#ifndef GROUP10AVOIDER_DOT_H
-#define GROUP10AVOIDER_DOT_H
+#ifndef GROUP10VISION_H
+#define GROUP10VISION_H
 
 #include "modules/computer_vision/cv.h"
 #include "opencv_to_c.h"
+
+extern int X;
 
 void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_index, int X, int Y);
 void grad_x(int *p_img, int *p_x_grad, int X, int Y);
@@ -13,7 +15,9 @@ int HorizonFilter(int *img, float m, float b, int BUFFER, int X, int Y);
 int array_find(int *img, int i, int j, int X, int grid_height, int grid_width);
 void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_height, int grid_width, int X);
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows);
+
 void visionInit(void);
 void visionPeriodic(void);
+
 
 #endif
