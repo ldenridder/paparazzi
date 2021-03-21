@@ -1,6 +1,7 @@
 
 #include "std.h"
 #include "opencv_to_c.h"
+#include "modules/computer_vision/lib/vision/image.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/core/core.hpp>
@@ -14,18 +15,24 @@ using namespace cv;
 
 
 
-struct image_t *imageProcess(struct image_t *image)
+void imageProcess(struct image_t *image)
 {
-  WIDTH = 520;
-  HEIGHT = 240;
+//If throws an error, then revert back to returning structure pointer, such as in crash course
+  int width = img->width;
+  int height = img->height;
+  struct image_t greyImage;
+  
+  image_create(greyImage,width,height,IMAGE_INT16);
+  image_to_grayscale(image,greyImage);
+  
   Mat M(height, width, CV_8UC2, img);
   //Mat imgOLD;
   //imgOLD = imread("../C-code/30315196.jpg"); //get image from file (need to change)
   Mat image;
   Mat mtx;
   Mat dist;
-
-  cvtColor(M, image, CV_YUV2BGR_UYVY);//CV_8UC2 OR CV_YUV2BGR_Y422); //convert to MAT
+  
+  //cvtColor(M, image, CV_YUV2BGR_UYVY);//CV_8UC2 OR CV_YUV2BGR_Y422); //convert to MAT
   //mtx = getMtx(mtx);
   //dist = getDist(dist);
   
