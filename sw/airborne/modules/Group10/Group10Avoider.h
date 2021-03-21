@@ -1,8 +1,10 @@
-#ifndef GROUP10AVOIDER_DOT_H
-#define GROUP10AVOIDER_DOT_H
+#ifndef GROUP10AVOIDER_H
+#define GROUP10AVOIDER_H
 
 // added
 // settings
+
+
 extern float fast_velocity;               // fast flight speed [m/s]
 extern float slow_velocity;  // slow flight speed [m/s]
 extern float soft_heading_rate;	 // soft heading rate [rad/s]
