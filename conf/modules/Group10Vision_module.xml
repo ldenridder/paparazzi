@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="Group10">
+  <doc>
+    <description>
+    
+    </description>
+
+	<header>
+		<file name="Group10Vision.h"/>
+	</header>
+	<init fun="visionInit()"/>
+	<makefile target="ap|nps">
+		<file name="Group10Vision.c"/>
+	</makefile>
+</module>

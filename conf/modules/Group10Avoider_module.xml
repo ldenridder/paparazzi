@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="Group10">
+  <doc>
+    <description>
+    
+    </description>
+
+	<header>
+		<file name="Group10Avoider.h"/>
+	</header>
+	<init fun="avoiderInit()"/>
+	<periodic fun="avoiderPeriodic()" freq="4"/>
+	<makefile target="ap|nps">
+		<file name="Group10Avoider.c"/>
+	</makefile>
+</module>
