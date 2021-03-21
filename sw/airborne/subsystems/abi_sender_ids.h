@@ -487,4 +487,9 @@
 #define JOYSTICK_ID 1
 #endif
 
+// Allowable distance to travel
+#ifndef NAVIGATION_VECTOR_ID
+#define NAVIGATION_VECTOR_ID 1
+#endif
+
 #endif /* ABI_SENDER_IDS_H */
