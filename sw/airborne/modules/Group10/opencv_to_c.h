@@ -1,11 +1,11 @@
-#ifndef OPENCV_EXAMPLE_H
-#define OPENCV_EXAMPLE_H
+#ifndef OPENCV_TO_C_H
+#define OPENCV_TO_C_H
 
 #ifdef __cplusplus
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/calib3d.hpp>
-using namespace cv;
+//#include <opencv2/core/core.hpp>
+//#include <opencv2/imgcodecs.hpp>
+//#include <opencv2/calib3d.hpp>
+//using namespace cv;
 extern "C" 
 {
 

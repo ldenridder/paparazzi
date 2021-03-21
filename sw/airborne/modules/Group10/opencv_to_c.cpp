@@ -8,6 +8,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 
+using namespace std;
 //#include <iostream> //for printing to terminal
 using namespace cv;
 
