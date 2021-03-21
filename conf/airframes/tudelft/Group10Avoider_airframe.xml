@@ -5,15 +5,6 @@
     <target name="ap" board="bebop">
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
-      
-      
-      
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN2" value="60"/>
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX2" value="130"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MIN2" value="75"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="110"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="120"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="140"/>
     </target>
 
     
@@ -21,16 +12,6 @@
       <module name="fdm" type="gazebo"/>
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
-      
-      
-      
-      <!-- Detect green -->
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN2" value="0"/>
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX2" value="255"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MIN2" value="0"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="110"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="0"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="130"/>
     </target>
     
       <!-- Subsystem section -->
