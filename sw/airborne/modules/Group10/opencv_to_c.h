@@ -1,0 +1,27 @@
+#ifndef OPENCV_EXAMPLE_H
+#define OPENCV_EXAMPLE_H
+
+#ifdef __cplusplus
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/calib3d.hpp>
+using namespace cv;
+extern "C" 
+{
+
+#endif
+  
+  int imageProcess(char *img, int width, int height);
+  void noiseFilter(int *p_hmat_z,int X,int Y);
+  void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult);
+  //void getImage();
+  //int getDist();
+  //int getMtx();
+
+#ifdef __cplusplus
+
+}
+#endif
+
+#endif
+
