@@ -3,15 +3,62 @@
 #include "modules/Group10/Group10Vision.h"
 #include "subsystems/abi.h"
 
+#include "modules/computer_vision/lib/vision/image.h"
+
 #ifndef PROCESS_FPS
 #define PROCESS_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
+
+/*The following funciton is a modification of the main branch. It does not use cpp. All image processing is done here, then the vector of allowable directions is messaged through abi*/
+struct image_t *imageProcess(struct image_t *image){
+	int X = 520; int Y = 240;
+	int n_rows = 10; int n_columns = 10;
+	int grid_height = Y/n_rows;
+	int grid_width = X/n_rows;
+	int img[X*Y];
+	int x_grad[X*Y], y_grad[X*Y], xx_grad[X*Y], yy_grad[X*Y], xy_grad[X*Y];
+	double shape_index[X*Y];
+	int hmat_z[X*Y];
+	int navInput[X];
+	int grid[n_rows*n_columns];
+	
+	//Convert image to greyscale
+	image_to_grayscale(image,image);
+	int *imageValues = image->buf;
+	
+	//Convert image to array
+	int x; int y;
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			img[y*X+x] = imageValues[y*X+x];
+		}
+	}
+	
+	//Perform object detection
+	grad_x(img,x_grad,X,Y);
+	grad_y(img,y_grad,X,Y);
+	grad_x(x_grad,xx_grad,X,Y);
+	grad_y(y_grad,yy_grad,X,Y);
+	grad_y(x_grad,xy_grad,X,Y);
+	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
+	//noiseFilter(hmat_z,X,Y);
+	grid_counter(img,grid,n_rows,n_columns,grid_height,grid_width,X);
+	output_conversion(grid,navInput,n_columns,n_rows);
+	
+	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
+	return image;
+}
+
 
 void visionInit(void){
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
 }
 
-
+/*
+//Need to get rid of visionPeriodic
 void visionPeriodic(void){
 
 	int X = 520;
@@ -42,6 +89,7 @@ void visionPeriodic(void){
 	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
 	
 }
+*/
 
 //Helper functions
 
@@ -190,7 +238,7 @@ int HorizonFilter(int *img, float m, float b, int BUFFER, int X, int Y)
 int array_find(int *img, int i, int j, int X, int grid_height, int grid_width)
 {
 	int k, l;
-	int sum = 0;
+	//int sum = 0;
 	for(k=(i*grid_height); k<((i+1)*grid_height); k++)
 	{
 		for(l=(j*grid_width); l<((j+1)*grid_width); l++)

@@ -2,7 +2,7 @@
 #define GROUP10VISION_H
 
 #include "modules/computer_vision/cv.h"
-#include "opencv_to_c.h"
+
 
 extern int X;
 
@@ -17,7 +17,8 @@ void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_hei
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows);
 
 void visionInit(void);
-void visionPeriodic(void);
+//void visionPeriodic(void);
+struct image_t *imageProcess(struct image_t *image);
 
 
 #endif
