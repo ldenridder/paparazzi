@@ -11,28 +11,42 @@
 
 /*The following funciton is a modification of the main branch. It does not use cpp. All image processing is done here, then the vector of allowable directions is messaged through abi*/
 struct image_t *imageProcess(struct image_t *image){
+	printf("Got here one \n");
+	printf("Image address: %p\n", image);
 	int X = 520; int Y = 240;
-	int n_rows = 10; int n_columns = 10;
+	printf("Address of X is: %p\n", &X);
+	int n_rows = 7; int n_columns = 10;
 	int grid_height = Y/n_rows;
 	int grid_width = X/n_rows;
 	int img[X*Y];
 	int x_grad[X*Y], y_grad[X*Y], xx_grad[X*Y], yy_grad[X*Y], xy_grad[X*Y];
 	double shape_index[X*Y];
 	int hmat_z[X*Y];
-	int navInput[X];
+	int navInput[7] = {0,0,0,0,0,0,0};
 	int grid[n_rows*n_columns];
 	
 	//Convert image to greyscale
+	//printf("Got before greyscale \n");
 	image_to_grayscale(image,image);
-	int *imageValues = image->buf;
+	//printf("Greyscale Image address: %p\n", image);
+	//printf("Got after greyscale \n");
+	uint8_t *imageValues = image->buf;
+	printf("Got imageValues \n");
+	//uint8_t *source = image->buf;
+	//printf("Test: %d\n",source[0]);
+	printf("Test2: %d\n",imageValues[0]);
 	
 	//Convert image to array
 	int x; int y;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			img[y*X+x] = imageValues[y*X+x];
+			//printf("%d ",img[y*X+x]);
 		}
+		//printf("\n");
 	}
+	//printf("img is: %p\n", img);
+	//printf("Got image array\n");
 	
 	//Perform object detection
 	grad_x(img,x_grad,X,Y);
@@ -44,17 +58,44 @@ struct image_t *imageProcess(struct image_t *image){
 	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
+	printf("Object detection \n");
 	//noiseFilter(hmat_z,X,Y);
 	grid_counter(img,grid,n_rows,n_columns,grid_height,grid_width,X);
-	output_conversion(grid,navInput,n_columns,n_rows);
+	/*
+	for(y=0;y<n_rows;y++){
+		for(x=0;x<n_columns;x++){
+			printf("%d ",grid[y*X+x]);
+		}
+		printf("\n");
+	}
+	*/
+	for(x=0;x<n_rows;x++){
+		printf("%d ",navInput[x]);
+	}
+	printf("\n");
 	
-	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
+	output_conversion(grid,navInput,n_columns,n_rows);
+	for(x=0;x<n_rows;x++){
+		printf("%d ",navInput[x]);
+	}
+	printf("\n");
+	/*
+	printf("Grid output\n");
+	printf("Value: %p\n",navInput);
+	printf("Lane1: %d\n",navInput[0]);
+	printf("Lane2: %d\n",navInput[1]);
+	printf("Lane3: %d\n",navInput[2]);
+	*/
+	printf("Lane4: %d\n",navInput[3]);	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
+	printf("Abi messaging out\n");
 	return image;
 }
 
 
 void visionInit(void){
+	printf("Got here \n");
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
+	printf("Got here again \n");
 }
 
 /*
@@ -173,8 +214,10 @@ void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget
 		for(x=0;x<X;x++){
 			if(((p_shape_index[y*X+x] - htarget)<hdelta) && (p_img[y*X+x] >= 100)){
 				p_hmat_z[y*X+x] += p_img[y*X+x];
+				//printf("%d ",p_hmat_z[y*X+x]);
 			}
 		}
+		//printf("\n");
 	}
 	return;
 }
@@ -275,6 +318,18 @@ void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_hei
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows)
 {
 	int i, j;
+	
+	for(j=0;j<n_rows;j++){
+		for(i=0;i<n_columns;i++){
+			printf("%d ",p_grid[j*n_columns+i]);
+		}
+		printf("\n");
+	}
+	for(i=0;i<n_rows;i++){
+		printf("%d ",p_navInput[i]);
+	}
+	printf("\n");
+	
 	for(i=0;i<n_columns;i++)
 	{
 		for(j=n_rows-1;j>=0;j--)

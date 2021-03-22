@@ -83,13 +83,16 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
                                int32_t __attribute__((unused)) allowableDistance)
 {
 	navInput = allowableDistance; //Pointer to a vector containing the allowable distances in each lane
+	printf(navInput); //for debugging
 }
+
 
 
 /*
  * Initialisation function
  */
 void avoiderInit(void){
+	printf("Got to avoiderInit");
 	AbiBindMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID, &allowable_distance_ev, allowable_distance_cb);
 
 //added
