@@ -30,7 +30,10 @@
 extern "C" {
 #endif
 
-int opencv_example(char *img, int width, int height);
+void noiseFilter(int *p_hmat_z,int X, int Y);
+void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult);
+
+//int opencv_example(char *img, int width, int height);
 
 #ifdef __cplusplus
 }

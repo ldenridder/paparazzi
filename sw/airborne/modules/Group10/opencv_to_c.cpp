@@ -1,4 +1,61 @@
+#include "opencv_to_c.h" //Modify this file
+#include <stdio.h>
+using namespace std;
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+#include "opencv_image_functions.h"
 
+void noiseFilter(int *p_hmat_z,int X,int Y){
+	printf("We got here");
+	int x,y;
+	
+	maximumBoxFilter(2,p_hmat_z,p_hmat_z);
+	int fch = 50;
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			if(p_hmat_z[y*X+x] < fch){
+				p_hmat_z[y*X+x] = 0;
+			}
+			else{
+				p_hmat_z[y*X+x] = 1;
+			}
+		}
+	}
+}
+
+void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
+	Mat M(240,520,CV_8UC2,p_hmat_z);
+	Mat imageResult;
+	Mat element = getStructuringElement(MORPH_RECT, Size(n,n),Point(-1,-1));
+	dilate(M, imageResult,element);
+	
+	//Mat img(240,520,CV_8UC2,imageResult);
+	//p_imgResult = img.data;
+	
+	//p_imgResult = imageResult.data;
+	
+	int i,j;
+	printf("CHECK THIS");
+	for(j=0;j<240;j++){
+		for(i=0;i<520;i++){
+			//p_imgResult[j*520+i] = (int)imageResult.data[j*520+i];
+			p_imgResult[j*520+i] = imageResult.at<uint8_t>(j,i);
+			printf("%d ",p_imgResult[j*520+i]);
+		}
+		printf("\n");
+	}
+
+	//size = (n,n);
+	//shape = cv2.MORPH_RECT;
+	//kernel = cv2.getStructuringElement(shape,size);
+	
+	//cv2.dilate(M,M,kernal); //Not sure if arrays will work here
+}
+
+//OLD
+///////////////////////////////
+/*
 #include "std.h"
 #include "opencv_to_c.h"
 #include "modules/computer_vision/lib/vision/image.h"

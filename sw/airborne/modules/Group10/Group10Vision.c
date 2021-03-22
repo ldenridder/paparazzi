@@ -4,6 +4,7 @@
 #include "subsystems/abi.h"
 
 #include "modules/computer_vision/lib/vision/image.h"
+#include "opencv_to_c.h"
 
 #ifndef PROCESS_FPS
 #define PROCESS_FPS 0       ///< Default FPS (zero means run at camera fps)
@@ -11,10 +12,10 @@
 
 /*The following funciton is a modification of the main branch. It does not use cpp. All image processing is done here, then the vector of allowable directions is messaged through abi*/
 struct image_t *imageProcess(struct image_t *image){
-	printf("Got here one \n");
-	printf("Image address: %p\n", image);
+	//printf("Got here one \n");
+	//printf("Image address: %p\n", image);
 	int X = 520; int Y = 240;
-	printf("Address of X is: %p\n", &X);
+	//printf("Address of X is: %p\n", &X);
 	int n_rows = 7; int n_columns = 10;
 	int grid_height = Y/n_rows;
 	int grid_width = X/n_rows;
@@ -31,10 +32,10 @@ struct image_t *imageProcess(struct image_t *image){
 	//printf("Greyscale Image address: %p\n", image);
 	//printf("Got after greyscale \n");
 	uint8_t *imageValues = image->buf;
-	printf("Got imageValues \n");
+	//printf("Got imageValues \n");
 	//uint8_t *source = image->buf;
 	//printf("Test: %d\n",source[0]);
-	printf("Test2: %d\n",imageValues[0]);
+	//printf("Test2: %d\n",imageValues[0]);
 	
 	//Convert image to array
 	int x; int y;
@@ -59,7 +60,7 @@ struct image_t *imageProcess(struct image_t *image){
 	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 	printf("Object detection \n");
-	//noiseFilter(hmat_z,X,Y);
+	noiseFilter(hmat_z,X,Y);
 	grid_counter(img,grid,n_rows,n_columns,grid_height,grid_width,X);
 	/*
 	for(y=0;y<n_rows;y++){
@@ -69,12 +70,15 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	*/
+	/*
 	for(x=0;x<n_rows;x++){
 		printf("%d ",navInput[x]);
 	}
 	printf("\n");
+	*/
 	
 	output_conversion(grid,navInput,n_columns,n_rows);
+	
 	for(x=0;x<n_rows;x++){
 		printf("%d ",navInput[x]);
 	}
@@ -100,15 +104,15 @@ struct image_t *imageProcess(struct image_t *image){
 	int allowableDistance7 = navInput[6];
 
 	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7);
-	printf("Abi messaging out\n");
+	//printf("Abi messaging out\n");
 	return image;
 }
 
 
 void visionInit(void){
-	printf("Got here \n");
+	//printf("Got here \n");
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
-	printf("Got here again \n");
+	//printf("Got here again \n");
 }
 
 /*
