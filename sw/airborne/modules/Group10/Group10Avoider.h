@@ -18,6 +18,7 @@ extern int hard_heading_threshold; 		 // threshold hard [rad/s]
 extern int stop_heading_threshold;	 	 // threshold stop [rad/s]
 
 
+
 void avoiderInit(void);
 void avoiderPeriodic(void);
 

@@ -57,7 +57,7 @@ float current_heading_rate = 0.f;	// current heading rate [rad/s]
 int32_t floor_count = 0;                // green color count from color filter for floor detection
 int32_t floor_centroid = 0;             // floor detector centroid in y direction (along the horizon)
 int i = 0;
-int navInput = 0;
+int *navInput;
 
 #ifndef FLOOR_VISUAL_DETECTION_ID
 #error This module requires two color filters, as such you have to define FLOOR_VISUAL_DETECTION_ID to the orange filter
@@ -180,26 +180,6 @@ void avoiderPeriodic(void)
 		  i++;
 	  }
 	  }
-
-	  break;
-
-	case STOP_LEFT: // The drone is stopped and rotates with a large heading rate
-	  guidance_h_set_guided_body_vel(0, 0);
-	  guidance_h_set_guided_heading_rate(-stop_heading_rate);
-
-	  current_heading_rate = -stop_heading_rate;
-	  current_velocity = 0;
-	  navigation_state = DIRECTION;
-
-	  break;
-
-	case HARD_LEFT: // The drone flies slow and rotates with a pretty large heading rate
-	  guidance_h_set_guided_body_vel(slow_velocity, 0);
-	  guidance_h_set_guided_heading_rate(-hard_heading_rate);
-
-	  current_heading_rate = -hard_heading_rate;
-	  current_velocity = slow_velocity;
-	  navigation_state = DIRECTION;
 
 	  break;
 
