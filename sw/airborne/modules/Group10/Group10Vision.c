@@ -86,7 +86,12 @@ struct image_t *imageProcess(struct image_t *image){
 	printf("Lane2: %d\n",navInput[1]);
 	printf("Lane3: %d\n",navInput[2]);
 	*/
-	printf("Lane4: %d\n",navInput[3]);	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
+	//printf("Lane4: %d\n",navInput[3]);
+	//int *navInputPointer = navInput;
+	//printf("Array: %p\n",navInput);
+	//printf("Pointer: %p\n",navInputPointer);
+	//printf("Address of array[0]: %p\n", &navInput);
+	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
 	printf("Abi messaging out\n");
 	return image;
 }
