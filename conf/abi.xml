@@ -205,7 +205,13 @@
     </message>
     
     <message name="NAVIGATION_VECTOR" id="29">
-    	<field name="allowableDistance" type="int32_t *">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance1" type="int">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance2" type="int">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance3" type="int">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance4" type="int">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance5" type="int">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance6" type="int">Allowable distance in each trajectory lane</field>
+    	<field name="allowableDistance7" type="int">Allowable distance in each trajectory lane</field>
     </message>
 
   </msg_class>

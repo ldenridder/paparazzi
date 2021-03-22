@@ -28,7 +28,7 @@
 	<file name="Group10Avoider.h"/>
   </header>
   <init fun="avoiderInit()"/>
-  <periodic fun="avoiderPeriodic()" freq="4"/>
+  <periodic fun="avoiderPeriodic()" freq="2"/>
   <makefile target="ap|nps">
 	<file name="Group10Avoider.c"/>
   </makefile>

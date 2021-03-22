@@ -91,7 +91,15 @@ struct image_t *imageProcess(struct image_t *image){
 	//printf("Array: %p\n",navInput);
 	//printf("Pointer: %p\n",navInputPointer);
 	//printf("Address of array[0]: %p\n", &navInput);
-	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
+	int allowableDistance1 = navInput[0];
+	int allowableDistance2 = navInput[1];
+	int allowableDistance3 = navInput[2];
+	int allowableDistance4 = navInput[3];
+	int allowableDistance5 = navInput[4];
+	int allowableDistance6 = navInput[5];
+	int allowableDistance7 = navInput[6];
+
+	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7);
 	printf("Abi messaging out\n");
 	return image;
 }

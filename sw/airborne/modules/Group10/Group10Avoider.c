@@ -10,12 +10,6 @@
 
 #define GROUP_10_VERBOSE TRUE
 
-#define PRINT(string,...) fprintf(stderr, "[group_10->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
-#if GROUP_10_VERBOSE
-#define VERBOSE_PRINT PRINT
-#else
-#define VERBOSE_PRINT(...)
-#endif
 
 /*
 For the navigation it was chosen to make different cases with the default case being direction. This case loops through a decision tree based on the floor count and input from th direction array
@@ -57,7 +51,13 @@ float current_heading_rate = 0.f;	// current heading rate [rad/s]
 int32_t floor_count = 0;                // green color count from color filter for floor detection
 int32_t floor_centroid = 0;             // floor detector centroid in y direction (along the horizon)
 int i = 0;
-int *navInput;
+int navInput1 = 0;
+int navInput2 = 0;
+int navInput3 = 0;
+int navInput4 = 0;
+int navInput5 = 0;
+int navInput6 = 0;
+int navInput7 = 0;
 
 #ifndef FLOOR_VISUAL_DETECTION_ID
 #error This module requires two color filters, as such you have to define FLOOR_VISUAL_DETECTION_ID to the orange filter
@@ -74,16 +74,29 @@ static void floor_detection_cb(uint8_t __attribute__((unused)) sender_id,
 }
 
 //
-
+#ifndef NAVIGATION_VECTOR_ID
+#endif
 
 
 
 static abi_event allowable_distance_ev;
 static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
-                               int32_t __attribute__((unused)) allowableDistance)
+                               int __attribute__((unused)) allowableDistance1,
+							   int __attribute__((unused)) allowableDistance2,
+							   int __attribute__((unused)) allowableDistance3,
+							   int __attribute__((unused)) allowableDistance4,
+							   int __attribute__((unused)) allowableDistance5,
+							   int __attribute__((unused)) allowableDistance6,
+							   int __attribute__((unused)) allowableDistance7)
 {
-	navInput = allowableDistance; //Pointer to a vector containing the allowable distances in each lane
-	printf(navInput); //for debugging
+	navInput1 = allowableDistance1;
+	navInput2 = allowableDistance2;
+	navInput3 = allowableDistance3;
+	navInput4 = allowableDistance4;
+	navInput5 = allowableDistance5;
+	navInput6 = allowableDistance6;
+	navInput7 = allowableDistance7;//Pointer to a vector containing the allowable distances in each lane
+
 }
 
 
@@ -94,7 +107,7 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
 void avoiderInit(void){
 	printf("Got to avoiderInit");
 	AbiBindMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID, &allowable_distance_ev, allowable_distance_cb);
-
+	printf("navInput HEREHEREHEHEHE %d %d %d", navInput1,navInput2,navInput3); //for debugging
 //added
 	// bind our colorfilter callbacks to receive the color filter outputs
 	AbiBindMsgVISUAL_DETECTION(FLOOR_VISUAL_DETECTION_ID, &floor_detection_ev, floor_detection_cb);
@@ -109,11 +122,11 @@ void avoiderPeriodic(void)
   }
 
   // compute current color thresholds
- VERBOSE_PRINT("Color_count: %d  threshold: %d: \n", floor_count, floor_count_threshold_low, floor_count_threshold_high);
- VERBOSE_PRINT("Current velocity: %f \n", current_velocity);
- VERBOSE_PRINT("Current heading rate: %f \n", current_heading_rate);
- VERBOSE_PRINT("Navigation state: %d \n", navigation_state);
- VERBOSE_PRINT("Allowable Distance : %d \n", navInput);
+ printf("Color_count: %d  thresholds: %d %d: \n", floor_count, floor_count_threshold_low, floor_count_threshold_high);
+ printf("Current velocity: %f \n", current_velocity);
+ printf("Current heading rate: %f \n", current_heading_rate);
+ printf("Navigation state: %d \n", navigation_state);
+// printf("Allowable Distance : %d \n", navInput);
  switch (navigation_state){
     case DIRECTION:
       //count++; // Increase counter for the time of the direction array
@@ -122,23 +135,23 @@ void avoiderPeriodic(void)
       if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
 	i = 0;
         navigation_state = FIRST_STOP_FLOOR;
-      } else if(navInput[3] > straight_heading_threshold){ //Fly straight when possible
+      } else if(navInput4 > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
-      } else if(navInput[3] > soft_heading_threshold && navInput[2] > soft_heading_threshold+1 && navInput[2] > navInput[4]){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
+      } else if(navInput4 > soft_heading_threshold && navInput3 > soft_heading_threshold+1 && navInput3 > navInput5){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
         navigation_state = SOFT_LEFT;
-      } else if(navInput[3] > soft_heading_threshold && navInput[4] > soft_heading_threshold+1){
+      } else if(navInput4 > soft_heading_threshold && navInput5 > soft_heading_threshold+1){
         navigation_state = SOFT_RIGHT;
-      } else if(navInput[3] > soft_heading_threshold && navInput[1] > soft_heading_threshold+1 && navInput[1] > navInput[5]){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
+      } else if(navInput4 > soft_heading_threshold && navInput2 > soft_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
 	navigation_state = HARD_LEFT;
-      } else if(navInput[3] > soft_heading_threshold && navInput[5] > soft_heading_threshold+1){
+      } else if(navInput4 > soft_heading_threshold && navInput5 > soft_heading_threshold+1){
         navigation_state = HARD_RIGHT;
-      } else if(navInput[3] > soft_heading_threshold){ //Fly slower straight
+      } else if(navInput4 > soft_heading_threshold){ //Fly slower straight
         navigation_state = SLOW_STRAIGHT;
-      } else if(navInput[3] > hard_heading_threshold && navInput[1] > hard_heading_threshold+1 && navInput[1] > navInput[5]){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
+      } else if(navInput4 > hard_heading_threshold && navInput2 > hard_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
 	navigation_state = HARD_LEFT;
-      } else if(navInput[3] > hard_heading_threshold && navInput[5] > hard_heading_threshold+1){
+      } else if(navInput4 > hard_heading_threshold && navInput5 > hard_heading_threshold+1){
         navigation_state = HARD_RIGHT;
-      } else if(navInput[0] > stop_heading_threshold && navInput[0] > navInput[6]){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
+      } else if(navInput1 > stop_heading_threshold && navInput1 > navInput7){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
 	navigation_state = STOP_LEFT;
       } else{
         navigation_state = STOP_RIGHT;
@@ -166,7 +179,7 @@ void avoiderPeriodic(void)
 
 	case SECOND_STOP_FLOOR: //This checks whether this time there is enough floor and there are no objects in front of you otherwise it rotates another 90 degrees
 	  guidance_h_set_guided_body_vel(0, 0);
-	  if (floor_count > floor_count_threshold_high && navInput[3] > straight_heading_threshold) {
+	  if (floor_count > floor_count_threshold_high && navInput4 > straight_heading_threshold) {
 		guidance_h_set_guided_heading_rate(0);
 		current_heading_rate = 0;
 		current_velocity = 0;
