@@ -57,7 +57,7 @@ float current_heading_rate = 0.f;	// current heading rate [rad/s]
 int32_t floor_count = 0;                // green color count from color filter for floor detection
 int32_t floor_centroid = 0;             // floor detector centroid in y direction (along the horizon)
 int i = 0;
-
+int navInput = 0;
 
 #ifndef FLOOR_VISUAL_DETECTION_ID
 #error This module requires two color filters, as such you have to define FLOOR_VISUAL_DETECTION_ID to the orange filter
@@ -110,7 +110,7 @@ void avoiderPeriodic(void)
  VERBOSE_PRINT("Current velocity: %f \n", current_velocity);
  VERBOSE_PRINT("Current heading rate: %f \n", current_heading_rate);
  VERBOSE_PRINT("Navigation state: %d \n", navigation_state);
- VERBOSE_PRINT("Time state: %d \n", count);
+ VERBOSE_PRINT("Allowable Distance : %d \n", navInput);
  switch (navigation_state){
     case DIRECTION:
       //count++; // Increase counter for the time of the direction array
