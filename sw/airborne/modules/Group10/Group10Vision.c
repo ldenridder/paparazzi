@@ -28,7 +28,7 @@ struct image_t *imageProcess(struct image_t *image){
 	
 	/*
 	int x,y;
-	printf("Image: \n");
+	printf("IMAGE: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",img[y*X+x]);
@@ -36,6 +36,7 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	*/
+
 	
 	findSegmentation(img, X, Y, &m, &b, &mu_s, &mu_g);
 	//printf("m = %d\n",m);
@@ -252,6 +253,8 @@ void findSegmentation(int *img, int X, int Y, double *m, int *b, double *mu_sFIN
 			//det(sigma_s, sigma_g, &det_s, &det_g);
 			J1 = 1/(sigma_s + sigma_g);
 			if(J1 > Jmax){
+				//printf("m = %f\n",tempM);
+				//printf("b = %d\n",tempB);
 				*m = tempM;
 				*b = tempB;
 				//printf("tempM = %d\n",tempM);
@@ -259,13 +262,19 @@ void findSegmentation(int *img, int X, int Y, double *m, int *b, double *mu_sFIN
 				Jmax = J1;
 				*mu_sFINAL = mu_s;
 				*mu_gFINAL = mu_g;
+				//printf("mu_s = %f\n",mu_s);
+				//printf("mu_g = %d\n",mu_g);
+				//printf("sigma_s = %f\n",sigma_s);
+				//printf("sigma_g = %f\n",sigma_g);
 			}
 		}
 	//}
+	/*
 	printf("m = %f\n",*m);
 	printf("b = %d\n",*b);
 	printf("mu_s = %f\n",*mu_sFINAL);
 	printf("mu_g = %f\n",*mu_gFINAL);
+	*/
 	return;
 }
 
