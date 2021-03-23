@@ -4,8 +4,43 @@ using namespace std;
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 using namespace cv;
-#include "opencv_image_functions.h"
+//#include "opencv_image_functions.h"
 
+void convertToGrey(char *img, int width, int height, int *output){
+	int i, j;
+	
+	//Transform image buffer img into an OpenCV YUV422 Mat
+	Mat M(height, width, CV_8UC2, img);
+	//Convert to OpenCV GRAY
+	Mat image;
+	cvtColor(M, image, CV_YUV2GRAY_Y422);
+	
+	//For rotated image:
+	int widthTemp = width;
+	width = height;
+	height = widthTemp;
+	//printf("WIDTH: %d\n",width);
+	//printf("HEIGHT: %d\n",height);
+	//Convert to array and rotate 90 counterclockwise for return
+	//printf("IMAGE: \n");
+	int k = 239, l = 0;
+	for(j=0;j<height;j++){
+		for(i=0;i<width;i++){
+			output[j*width+i] = image.at<uint8_t>(l,k);
+			//printf("%d ",output[j*width+i]);
+			l++;
+		}
+		k--;
+		l = 0;
+		//printf("\n");
+	}
+	return;
+}
+
+//////////////////////////////////
+//OLD CODE
+//////////////////////////////////
+/*
 void noiseFilter(int *p_hmat_z,int X,int Y){
 	printf("We got here");
 	int x,y;
@@ -52,6 +87,7 @@ void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
 	
 	//cv2.dilate(M,M,kernal); //Not sure if arrays will work here
 }
+*/
 
 //OLD
 ///////////////////////////////

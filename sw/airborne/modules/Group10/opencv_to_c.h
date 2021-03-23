@@ -11,9 +11,11 @@ extern "C"
 
 #endif
   
+  void convertToGrey(char *img, int width, int height, int *output);
+  
   //int imageProcess(char *img, int width, int height);
-  void noiseFilter(int *p_hmat_z,int X,int Y);
-  void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult);
+  //void noiseFilter(int *p_hmat_z,int X,int Y);
+  //void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult);
   //void getImage();
   //int getDist();
   //int getMtx();
