@@ -179,6 +179,10 @@ void visionInit(void){
 void cluster_creator(int *p_img, int X, int Y, int *cluster)
 {
 	int visited[X*Y];
+	int v;
+	for(v=0;v<X*Y;v++){
+		visited[v]=0;
+}
 	int running_cluster_ind=0;
 	int i, j;
 	printf("Entered cluster creator \n");
@@ -234,16 +238,28 @@ int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
 	int j_cond_end_col=0;
 	int entry_visited=0;
 	int image_point_cond=0;
+	/* couple of checks */
+
+
+
+
+
+
 	//printf("boolean value of i = %d\n", i);
 	//printf("Check save \n");
 	if(0<=i){i_cond_0 = 1;}
 	//printf("i_cond_0 value of i = %d\n", i_cond_0);	
 	if(i<Y){i_cond_end_row=1;}
+	printf("visited point value: %d\n", visited_point);
+
 	if(0<=j){j_cond_0=1;}
 	if(j<X){j_cond_end_col=1;}
+	printf("visited point value: %d\n", visited_point);
 	if(visited_point==0){entry_visited=1;}
+	printf("image_point value: %d\n", image_point);
 	if(image_point==1){image_point_cond=1;}
 	int summed_condition = i_cond_0 + j_cond_0 + i_cond_end_row + j_cond_end_col + entry_visited + image_point_cond;
+	printf("summed condition: %d\n ",summed_condition );
 	if(summed_condition==6){return_result = 1;}
 	return return_result;
 }
