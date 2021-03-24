@@ -16,7 +16,7 @@ struct image_t *imageProcess(struct image_t *image){
 	//printf("Image address: %p\n", image);
 	int X = 520; int Y = 240;
 	//printf("Address of X is: %p\n", &X);
-	int n_rows = 7; int n_columns = 10;
+	int n_rows = 10; int n_columns = 7;
 	int grid_height = Y/n_rows;
 	int grid_width = X/n_rows;
 	int img[X*Y];
@@ -71,24 +71,27 @@ struct image_t *imageProcess(struct image_t *image){
 	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 	
 	//printf("hmat_z: \n");
+	/*
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
 		}
 		printf("\n");
 	}
-	
+	*/
 	noiseFilter(hmat_z,X,Y);
 	//printf("\n hmat_z FILTERED: \n");
+	/*
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
 		}
 		printf("\n");
 	}
-
+*/
 
 	cluster_creator(hmat_z, X, Y, cluster);
+	
 	/*
 	printf("Cluster: \n");
 	for(y=0;y<Y;y++){
@@ -135,7 +138,7 @@ struct image_t *imageProcess(struct image_t *image){
 	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
-	for(x=0;x<n_rows;x++){
+	for(x=0;x<n_columns;x++){
 		printf("%d ",navInput[x]);
 	}
 	printf("\n");
@@ -186,7 +189,7 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 }
 	int running_cluster_ind=0;
 	int i, j;
-	printf("Entered cluster creator \n");
+	//printf("Entered cluster creator \n");
 	for(i=0;i<Y;i++)
 	{
 		for(j=0;j<X;j++)
@@ -267,7 +270,7 @@ else if(i<Y){i_cond_end_row=1;}
 	else if(image_point==1){image_point_cond=1;}
 */
 	int summed_condition = i_cond_0 + j_cond_0 + i_cond_end_row + j_cond_end_col + entry_visited + image_point_cond;
-	printf("summed condition: %d\n ",summed_condition );
+	//printf("summed condition: %d\n ",summed_condition );
 	if(summed_condition==6){return_result = 1;}
 	return return_result;
 }
@@ -277,7 +280,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	int i;
 	int j;
 	int size_object=0;
-	printf("Check cluster filt \n");
+	//printf("Check cluster filt \n");
 	
 	int firstIndex = -1;
 	for(i=0;i<(X*Y);i++){
@@ -285,7 +288,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 10){
+			if((i-firstIndex) < 85){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
@@ -296,9 +299,9 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	int index;
 	for(i=0;i<(X*Y);i++){
 		if(cluster[i] != -1){
-			printf("Entered here\n");
+			//printf("Entered here\n");
 			index = cluster[i];
-			printf("Index = %d\n",index);
+			//printf("Index = %d\n",index);
 			filteredImage[index] = 1;
 		}
 	}
