@@ -32,6 +32,7 @@ struct image_t *imageProcess(struct image_t *image){
 	for(i=0;i<(X*Y);i++){
 		cluster[i] = -1;
 		filteredImage[i] = 0;
+		hmat_z[i]=0;
 	}
 	//printf("Size of cluster: %d\n",(sizeof(cluster)/sizeof(cluster[0])));
 	
@@ -66,10 +67,10 @@ struct image_t *imageProcess(struct image_t *image){
 	grad_y(x_grad,xy_grad,X,Y);
 	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
-	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
-	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
+	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
+	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 	
-	printf("hmat_z: \n");
+	//printf("hmat_z: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
@@ -78,7 +79,7 @@ struct image_t *imageProcess(struct image_t *image){
 	}
 	
 	noiseFilter(hmat_z,X,Y);
-	printf("\n hmat_z FILTERED: \n");
+	//printf("\n hmat_z FILTERED: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
@@ -221,10 +222,11 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 	
 	//printf("Running cluster ind: %d\n",(*running_cluster_ind));
 	for(k=0; k<8; k++) 
-	{
-		if(Check_Save(i+neighb_i[k], j+neighb_j[k], visited[(i+neighb_i[k])*X + j+neighb_j[k]], p_img[(i+neighb_i[k])*X + j+neighb_j[k]], X, Y)==1)
-		{
-			Check_NB(i+neighb_i[k], j+neighb_j[k],  visited, p_img, running_cluster_ind, X, Y, cluster);
+	{	
+		int nbp_i = i+neighb_i[k];
+		int nbp_j = j+neighb_j[k];
+		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1){
+			Check_NB(nbp_i, nbp_j,  visited, p_img, running_cluster_ind, X, Y, cluster);
 		} 
 	}
 	return;
@@ -240,24 +242,30 @@ int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
 	int image_point_cond=0;
 	/* couple of checks */
 
-
-
-
-
-
 	//printf("boolean value of i = %d\n", i);
 	//printf("Check save \n");
-	if(0<=i){i_cond_0 = 1;}
+	if(0<=i && i<Y && 0<=j && j<X){
+		i_cond_end_row=1;
+		j_cond_0=1;
+		j_cond_end_col=1;
+		i_cond_0 = 1;
+		if(visited_point==0 && image_point==1){
+			entry_visited=1;
+			image_point_cond=1;}
+		}
 	//printf("i_cond_0 value of i = %d\n", i_cond_0);	
-	if(i<Y){i_cond_end_row=1;}
-	printf("visited point value: %d\n", visited_point);
+	/*
+
+else if(i<Y){i_cond_end_row=1;}
+
 
 	if(0<=j){j_cond_0=1;}
-	if(j<X){j_cond_end_col=1;}
-	printf("visited point value: %d\n", visited_point);
-	if(visited_point==0){entry_visited=1;}
-	printf("image_point value: %d\n", image_point);
-	if(image_point==1){image_point_cond=1;}
+	else if(j<X){j_cond_end_col=1;}
+
+	else if(visited_point==0){entry_visited=1;}
+
+	else if(image_point==1){image_point_cond=1;}
+*/
 	int summed_condition = i_cond_0 + j_cond_0 + i_cond_end_row + j_cond_end_col + entry_visited + image_point_cond;
 	printf("summed condition: %d\n ",summed_condition );
 	if(summed_condition==6){return_result = 1;}
