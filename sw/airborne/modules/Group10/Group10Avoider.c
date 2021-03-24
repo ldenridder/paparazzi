@@ -105,9 +105,9 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
  * Initialisation function
  */
 void avoiderInit(void){
-	printf("Got to avoiderInit");
+	//printf("Got to avoiderInit");
 	AbiBindMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID, &allowable_distance_ev, allowable_distance_cb);
-	printf("navInput HEREHEREHEHEHE %d %d %d", navInput1,navInput2,navInput3); //for debugging
+	//printf("navInput HEREHEREHEHEHE %d %d %d", navInput1,navInput2,navInput3); //for debugging
 //added
 	// bind our colorfilter callbacks to receive the color filter outputs
 	AbiBindMsgVISUAL_DETECTION(FLOOR_VISUAL_DETECTION_ID, &floor_detection_ev, floor_detection_cb);

@@ -7,7 +7,7 @@ using namespace cv;
 #include "opencv_image_functions.h"
 
 void noiseFilter(int *p_hmat_z,int X,int Y){
-	printf("We got here");
+	//printf("We got here");
 	int x,y;
 	
 	maximumBoxFilter(2,p_hmat_z,p_hmat_z);
@@ -35,7 +35,8 @@ void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
 	
 	//p_imgResult = imageResult.data;
 	
-	int i,j;
+	//int i,j;
+	/*
 	printf("CHECK THIS");
 	for(j=0;j<240;j++){
 		for(i=0;i<520;i++){
@@ -45,6 +46,7 @@ void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
 		}
 		printf("\n");
 	}
+	*/
 
 	//size = (n,n);
 	//shape = cv2.MORPH_RECT;
