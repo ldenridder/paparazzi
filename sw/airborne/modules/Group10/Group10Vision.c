@@ -25,6 +25,13 @@ struct image_t *imageProcess(struct image_t *image){
 	int hmat_z[X*Y];
 	int navInput[7] = {0,0,0,0,0,0,0};
 	int grid[n_rows*n_columns];
+	int cluster[X*Y];
+	
+	int i;
+	for(i=0;i<(X*Y);i++){
+		cluster[i] = -1;
+	}
+	printf("Size of cluster: %d\n",(sizeof(cluster)/sizeof(cluster[0])));
 	
 	//Convert image to greyscale
 	//printf("Got before greyscale \n");
@@ -61,6 +68,17 @@ struct image_t *imageProcess(struct image_t *image){
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 	printf("Object detection \n");
 	noiseFilter(hmat_z,X,Y);
+	printf("Noise filter done \n");
+	cluster_creator(hmat_z, X, Y, cluster);
+	
+	printf("CLUSTER: \n");
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			printf("%d\n ", cluster[y*X+x]);
+		}
+		printf("\n");
+	}
+	
 	grid_counter(img,grid,n_rows,n_columns,grid_height,grid_width,X);
 	/*
 	for(y=0;y<n_rows;y++){
@@ -114,6 +132,77 @@ void visionInit(void){
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
 	//printf("Got here again \n");
 }
+
+void cluster_creator(int *p_img, int X, int Y, int *cluster)
+{
+	int visited[X*Y];
+	int running_cluster_ind=0;
+	int i, j;
+	printf("Entered cluster creator \n");
+	for(i=0;i<Y;i++)
+	{
+		for(j=0;j<X;j++)
+		{
+		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster);} 
+		running_cluster_ind +=1;
+		}
+	}
+}
+
+void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster) 
+{	
+	int a;
+	printf("First 10 of cluster: \n");
+	for(a=0;a<10;a++){
+		printf("%d ",cluster[a]);
+	}
+	printf("\n");
+	
+	
+	int k; 
+	int neighb_i[8]={-1,-1,-1,0,0,1,1,1};
+	int neighb_j[8]={-1,0,+1,-1,1,-1,0,1};
+
+	printf("Check NB \n");
+
+	visited[i*X + j]= 1;
+	printf("Visited\n");
+	printf("Cluster(running_cluster_ind) = %d\n",cluster[(*running_cluster_ind)]);
+	cluster[*running_cluster_ind] = i*X + j;
+	printf("Cluster\n");
+	*running_cluster_ind += 1;
+	
+	printf("Running cluster ind: %d\n",(*running_cluster_ind));
+	for(k=0; k<8; k++) 
+	{
+		if(Check_Save(i+neighb_i[k], j+neighb_j[k], visited[(i+neighb_i[k])*X + j+neighb_j[k]], p_img[(i+neighb_i[k])*X + j+neighb_j[k]], X, Y))
+		{
+			Check_NB(i+neighb_i[k], j+neighb_j[k],  visited, p_img, running_cluster_ind, X, Y, cluster);
+		} 
+	}
+	return;
+}
+
+bool Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
+	bool return_result;
+	bool i_cond_0;
+	bool j_cond_0;
+	bool i_cond_end_row;
+	bool j_cond_end_col;
+	bool entry_visited;
+	bool image_point_cond;
+	printf("Check save \n");
+	if(0<=i){i_cond_0 = true;}
+	if(i<Y){i_cond_end_row=true;}
+	if(0<=j){j_cond_0=true;}
+	if(j<X){j_cond_end_col=true;}
+	if(visited_point==0){entry_visited=true;}
+	if(image_point==1){image_point_cond=true;}
+	
+	if(i_cond_0 && j_cond_0 && i_cond_end_row && j_cond_end_col && entry_visited && image_point_cond){return_result = true;}
+	return return_result;
+}
+
 
 /*
 //Need to get rid of visionPeriodic
