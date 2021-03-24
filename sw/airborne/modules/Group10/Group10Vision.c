@@ -148,11 +148,13 @@ void meanGrey(int *img, double *mu_s, int *n_s, double *mu_g, int *n_g, double m
 				(*n_s)++;
 				//printf("n_s = %d\n",*n_s);
 				(*mu_s) += img[y*X+x];
+				//printf("mu_s = %f\n", (*mu_s));
 			}
 			else{
 				//Pixel is in ground segment for this 'test' segmentation line
 				(*n_g)++;
 				(*mu_g) += img[y*X+x];
+				//printf("mu_g = %f\n", (*mu_g));
 			}
 		}
 	}
@@ -160,6 +162,10 @@ void meanGrey(int *img, double *mu_s, int *n_s, double *mu_g, int *n_g, double m
 	else{*mu_s = *mu_s/(*n_s);}
 	if(*n_g ==0){*mu_g = 0;}
 	else{*mu_g = *mu_g/(*n_g);}
+	printf("n_s = %d\n",(*n_s));
+	printf("n_g = %d\n",(*n_s));
+	printf("mu_s = %f\n", (*mu_s));
+	printf("mu_g = %f\n", (*mu_g));
 	return;
 }
 

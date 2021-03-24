@@ -15,13 +15,14 @@ void convertToGrey(char *img, int width, int height, int *output){
 	Mat image;
 	cvtColor(M, image, CV_YUV2GRAY_UYVY);
 
+/*
 	for(i=0;i<height;i++){
 		for(j=0;j<width;j++){
 			printf("%d ",image.at<uint8_t>(i,j));
 		}
 		printf("\n");
 	}
-	
+	*/
 	//For rotated image:
 	int widthTemp = width;
 	width = height;
