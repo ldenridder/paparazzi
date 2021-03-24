@@ -26,11 +26,12 @@ struct image_t *imageProcess(struct image_t *image){
 	int navInput[7] = {0,0,0,0,0,0,0};
 	int grid[n_rows*n_columns];
 	int cluster[X*Y];
-	int large_objects[X*Y];
+	int filteredImage[X*Y];
 
 	int i;
 	for(i=0;i<(X*Y);i++){
 		cluster[i] = -1;
+		filteredImage[i] = 0;
 	}
 	//printf("Size of cluster: %d\n",(sizeof(cluster)/sizeof(cluster[0])));
 	
@@ -67,15 +68,46 @@ struct image_t *imageProcess(struct image_t *image){
 	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
-	printf("Object detection \n");
+	
+	printf("hmat_z: \n");
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			printf("%d ",hmat_z[y*X+x]);
+		}
+		printf("\n");
+	}
+	
 	noiseFilter(hmat_z,X,Y);
-	printf("Noise filter done \n");
+	printf("\n hmat_z FILTERED: \n");
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			printf("%d ",hmat_z[y*X+x]);
+		}
+		printf("\n");
+	}
+
 
 	cluster_creator(hmat_z, X, Y, cluster);
-
-	cluster_filter(cluster, X, Y, large_objects);
-
+	/*
+	printf("Cluster: \n");
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			printf("%d ",cluster[y*X+x]);
+		}
+		printf("\n");
+	}
+*/
+	cluster_filter(cluster, X, Y, filteredImage);
 	
+	/*
+	printf("Filtered image: \n");
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			printf("%d ",filteredImage[y*X+x]);
+		}
+		printf("\n");
+	}
+	*/
 	//printf("CLUSTER: \n");
 	//for(y=0;y<Y;y++){
 	//	for(x=0;x<X;x++){
@@ -84,7 +116,7 @@ struct image_t *imageProcess(struct image_t *image){
 	//	printf("\n");
 	//}
 	
-	grid_counter(img,grid,n_rows,n_columns,grid_height,grid_width,X);
+	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
 	/*
 	for(y=0;y<n_rows;y++){
 		for(x=0;x<n_columns;x++){
@@ -217,52 +249,36 @@ int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
 }
 
 
-void cluster_filter(int *cluster, int X, int Y, int *large_objects){
+void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	int i;
 	int j;
 	int size_object=0;
 	printf("Check cluster filt \n");
-	for(i=0;i<Y;i++){
-		for(j=0;j<X;j++){
-			printf("before while loop with size_object: %d 1\n", size_object);
-			while(size_object>0){
-				size_object += -1;
-				continue;
-			}
-			printf("after while loop 1 \n");
-			if(cluster[i*X+j]==-1){
-				large_objects[cluster[i*X+j]]=0;
-				printf("adding zero to large_objects for value %d \n",cluster[i*X+j]);
-			}
-			else{
-				printf("ELSE LOOP with cluster value: %d \n",cluster[i*X+j]);
-				int k=0;
-				int size_object=0;
-						
-				while(cluster[i*X+j+k]!=-1){
-						k+=1;
-						size_object += 1;
-					}
-				printf("after while loop with k, with size_object of: %d \n",size_object);
-				if(size_object>1000){
-						int l;
-						for(l=0;l<size_object;l++){
-							large_objects[cluster[i*X+j+l]]=1;
-						}		
-					}
-				else{
-					printf("else statement if object is not larger: %d \n",size_object);
-					int p;
-					for(p=0;p<size_object;p++){
-						large_objects[cluster[i*X+j+p]]=0;
-					}
+	
+	int firstIndex = -1;
+	for(i=0;i<(X*Y);i++){
+		if(cluster[i] != -1 && firstIndex == -1){
+			firstIndex = i;
+		}
+		else if(cluster[i] == -1 && firstIndex != -1){
+			if((i-firstIndex) < 10){
+				for(j=firstIndex;j<i;j++){
+					cluster[j] = -1;
 				}
-
-
+				firstIndex = -1;
 			}
 		}
-
 	}
+	int index;
+	for(i=0;i<(X*Y);i++){
+		if(cluster[i] != -1){
+			printf("Entered here\n");
+			index = cluster[i];
+			printf("Index = %d\n",index);
+			filteredImage[index] = 1;
+		}
+	}
+	return;
 }
 
 /*
