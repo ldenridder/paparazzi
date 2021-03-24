@@ -17,8 +17,8 @@ void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_hei
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows);
 void cluster_creator(int *p_img, int X, int Y, int *cluster);
 void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster);
-bool Check_Save(int i, int j, int visited_point, int image_point, int X, int Y);
-
+int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y);
+void cluster_filter(int *cluster, int X, int Y, int *large_objects);
 void visionInit(void);
 //void visionPeriodic(void);
 struct image_t *imageProcess(struct image_t *image);

@@ -1,0 +1,63 @@
+<joystick>
+	<input>
+		<axis index="0" name="LeftStickHorizontal" />
+		<axis index="1" name="LeftStickVertical" />
+		<axis index="3" name="RightStickHorizontal" exponent="0.7"/>
+		<axis index="4" name="RightStickVertical" exponent="0.7"/>
+		<axis index="2" name="LeftTrigger" />
+		<axis index="5" name="RightTrigger" />
+		<axis index="6" name="Tilt_X" />
+		<axis index="7" name="Tilt_Y" />
+		<button index="0" name="Cross" />
+		<button index="1" name="Circle" />
+		<button index="2" name="Triangle" />
+		<button index="3" name="Square" />
+		<button index="4" name="LeftBumper" />
+		<button index="5" name="RightBumper" />
+		<button index="8" name="Share" />
+		<button index="9" name="Option" />
+		<button index="11" name="L3" />
+		<button index="12" name="R3" />
+		<hat index="0" name="dpad" />
+	</input>
+
+	<variables>
+	    <!-- manual by default and when pressing A, AUTO1 on B, AUTO2 on Y -->
+	    <var name="mode" default="0"/>
+	    <set var="mode" value="0" on_event="Cross"/>
+	    <set var="mode" value="1" on_event="Circle"/>
+	    <set var="mode" value="2" on_event="Triangle"/>
+  	</variables>
+
+	<messages period="0.02">
+		<message class="datalink" name="RC_4CH" send_always="true">
+			<field name="mode" value="mode" />
+			<field name="yaw" value="LeftStickHorizontal" />
+			<field name="throttle" value="Fit(RightTrigger - LeftTrigger, -127, 127, 47, 127)" />
+			<!-- <field name="pitch" value="RightStickVertical" />
+			<field name="roll" value="RightStickHorizontal" /> -->
+			<field name="pitch" value="Tilt_Y" />
+			<field name="roll" value="Tilt_X" />
+		</message>
+
+		<!-- go to "Start Engine" block if in AUTO2 and pressing start button -->
+		<message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && Option">
+			<field name="block_id" value="IndexOfBlock('Start Engine')"/>
+		</message>
+
+		<!-- go to "Takeoff" block if in AUTO2 and pressing up on dpad -->
+		<message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatUp(dpad)">
+			<field name="block_id" value="IndexOfBlock('Takeoff')"/>
+		</message>
+
+		<!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
+		<message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
+			<field name="block_id" value="IndexOfBlock('land here')"/>
+		</message>
+	 
+		<!-- go to "Standby" block if in AUTO2 and pressing down on dpad -->
+		<message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && Triangle">
+			<field name="block_id" value="IndexOfBlock('Standby')"/>
+		</message>
+	</messages>
+</joystick>
