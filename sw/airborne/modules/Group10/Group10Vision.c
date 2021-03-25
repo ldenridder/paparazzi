@@ -12,10 +12,8 @@
 
 /*The following funciton is a modification of the main branch. It does not use cpp. All image processing is done here, then the vector of allowable directions is messaged through abi*/
 struct image_t *imageProcess(struct image_t *image){
-	//printf("Got here one \n");
-	//printf("Image address: %p\n", image);
+
 	int X = 520; int Y = 240;
-	//printf("Address of X is: %p\n", &X);
 	int n_rows = 10; int n_columns = 7;
 	int grid_height = Y/n_rows;
 	int grid_width = X/n_rows;
@@ -27,37 +25,27 @@ struct image_t *imageProcess(struct image_t *image){
 	int grid[n_rows*n_columns];
 	int cluster[X*Y];
 	int filteredImage[X*Y];
-
 	int i;
 	for(i=0;i<(X*Y);i++){
 		cluster[i] = -1;
 		filteredImage[i] = 0;
 		hmat_z[i]=0;
 	}
-	//printf("Size of cluster: %d\n",(sizeof(cluster)/sizeof(cluster[0])));
 	
 	//Convert image to greyscale
-	//printf("Got before greyscale \n");
 	image_to_grayscale(image,image);
-	//printf("Greyscale Image address: %p\n", image);
-	//printf("Got after greyscale \n");
+
 	uint8_t *imageValues = image->buf;
-	//printf("Got imageValues \n");
-	//uint8_t *source = image->buf;
-	//printf("Test: %d\n",source[0]);
-	//printf("Test2: %d\n",imageValues[0]);
+
 	
 	//Convert image to array
 	int x; int y;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			img[y*X+x] = imageValues[y*X+x];
-			//printf("%d ",img[y*X+x]);
 		}
-		//printf("\n");
 	}
-	//printf("img is: %p\n", img);
-	//printf("Got image array\n");
+
 	
 	//Perform object detection
 	grad_x(img,x_grad,X,Y);
@@ -70,29 +58,12 @@ struct image_t *imageProcess(struct image_t *image){
 	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 	
-	//printf("hmat_z: \n");
-	/*
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",hmat_z[y*X+x]);
-		}
-		printf("\n");
-	}
-	*/
+
 	noiseFilter(hmat_z,X,Y);
-	//printf("\n hmat_z FILTERED: \n");
-	/*
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",hmat_z[y*X+x]);
-		}
-		printf("\n");
-	}
-*/
+
 
 	cluster_creator(hmat_z, X, Y, cluster);
 	
-	/*
 	printf("Cluster: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -100,11 +71,10 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-*/
+
 	cluster_filter(cluster, X, Y, filteredImage);
-	
 	/*
-	printf("Filtered image: \n");
+	printf("Filtered Image: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",filteredImage[y*X+x]);
@@ -112,29 +82,8 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	*/
-	//printf("CLUSTER: \n");
-	//for(y=0;y<Y;y++){
-	//	for(x=0;x<X;x++){
-	//		printf("%d\n ", cluster[y*X+x]);
-	//	}
-	//	printf("\n");
-	//}
-	
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
-	/*
-	for(y=0;y<n_rows;y++){
-		for(x=0;x<n_columns;x++){
-			printf("%d ",grid[y*X+x]);
-		}
-		printf("\n");
-	}
-	*/
-	/*
-	for(x=0;x<n_rows;x++){
-		printf("%d ",navInput[x]);
-	}
-	printf("\n");
-	*/
+
 	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
@@ -142,18 +91,7 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("%d ",navInput[x]);
 	}
 	printf("\n");
-	/*
-	printf("Grid output\n");
-	printf("Value: %p\n",navInput);
-	printf("Lane1: %d\n",navInput[0]);
-	printf("Lane2: %d\n",navInput[1]);
-	printf("Lane3: %d\n",navInput[2]);
-	*/
-	//printf("Lane4: %d\n",navInput[3]);
-	//int *navInputPointer = navInput;
-	//printf("Array: %p\n",navInput);
-	//printf("Pointer: %p\n",navInputPointer);
-	//printf("Address of array[0]: %p\n", &navInput);
+
 	int allowableDistance1 = navInput[0];
 	int allowableDistance2 = navInput[1];
 	int allowableDistance3 = navInput[2];
@@ -163,15 +101,13 @@ struct image_t *imageProcess(struct image_t *image){
 	int allowableDistance7 = navInput[6];
 
 	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7);
-	//printf("Abi messaging out\n");
 	return image;
 }
 
 
 void visionInit(void){
-	//printf("Got here \n");
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
-	//printf("Got here again \n");
+
 }
 
 
@@ -189,7 +125,6 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 }
 	int running_cluster_ind=0;
 	int i, j;
-	//printf("Entered cluster creator \n");
 	for(i=0;i<Y;i++)
 	{
 		for(j=0;j<X;j++)
@@ -202,28 +137,17 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 
 void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster) 
 {	
-	//int a;
-	//printf("First 10 of cluster: \n");
-	//for(a=0;a<10;a++){
-	//	printf("%d ",cluster[a]);
-	//}
-	//printf("\n");
-	
 	
 	int k; 
 	int neighb_i[8]={-1,-1,-1,0,0,1,1,1};
 	int neighb_j[8]={-1,0,+1,-1,1,-1,0,1};
 
-	//printf("Check NB \n");
-
 	visited[i*X + j]= 1;
-	//printf("Visited\n");
-	//printf("Cluster(running_cluster_ind) = %d\n",cluster[(*running_cluster_ind)]);
+
 	cluster[*running_cluster_ind] = i*X + j;
-	//printf("Cluster\n");
+
 	*running_cluster_ind += 1;
-	
-	//printf("Running cluster ind: %d\n",(*running_cluster_ind));
+
 	for(k=0; k<8; k++) 
 	{	
 		int nbp_i = i+neighb_i[k];
@@ -245,8 +169,6 @@ int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
 	int image_point_cond=0;
 	/* couple of checks */
 
-	//printf("boolean value of i = %d\n", i);
-	//printf("Check save \n");
 	if(0<=i && i<Y && 0<=j && j<X){
 		i_cond_end_row=1;
 		j_cond_0=1;
@@ -256,21 +178,7 @@ int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
 			entry_visited=1;
 			image_point_cond=1;}
 		}
-	//printf("i_cond_0 value of i = %d\n", i_cond_0);	
-	/*
-
-else if(i<Y){i_cond_end_row=1;}
-
-
-	if(0<=j){j_cond_0=1;}
-	else if(j<X){j_cond_end_col=1;}
-
-	else if(visited_point==0){entry_visited=1;}
-
-	else if(image_point==1){image_point_cond=1;}
-*/
 	int summed_condition = i_cond_0 + j_cond_0 + i_cond_end_row + j_cond_end_col + entry_visited + image_point_cond;
-	//printf("summed condition: %d\n ",summed_condition );
 	if(summed_condition==6){return_result = 1;}
 	return return_result;
 }
@@ -280,7 +188,6 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	int i;
 	int j;
 	int size_object=0;
-	//printf("Check cluster filt \n");
 	
 	int firstIndex = -1;
 	for(i=0;i<(X*Y);i++){
@@ -299,48 +206,12 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	int index;
 	for(i=0;i<(X*Y);i++){
 		if(cluster[i] != -1){
-			//printf("Entered here\n");
 			index = cluster[i];
-			//printf("Index = %d\n",index);
 			filteredImage[index] = 1;
 		}
 	}
 	return;
 }
-
-/*
-//Need to get rid of visionPeriodic
-void visionPeriodic(void){
-
-	int X = 520;
-	int Y = 240;
-	int n_rows = 10;
-	int n_columns = 10;
-	int grid_height = Y/n_rows;
-	int grid_width = X/n_rows;
-	int x_grad[X*Y], y_grad[X*Y], xx_grad[X*Y], yy_grad[X*Y], xy_grad[X*Y];
-	int shape_index[X*Y];
-	int hmat_z[X*Y];
-	int navInput[X];
-	
-
-	grad_x(img,x_grad,X,Y);
-	grad_y(img,y_grad,X,Y);
-	grad_x(x_grad,xx_grad,X,Y);
-	grad_y(y_grad,yy_grad,X,Y);
-	grad_y(x_grad,xy_grad,X,Y);
-	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y);
-	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
-	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
-	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
-	noiseFilter(hmat_z,X,Y);
-	grid_counter(img,grid,n_rows,n_columns,grid_height,grid_width,X);
-	output_conversion(grid,navInput,n_columns,n_rows);
-	
-	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,navInput);
-	
-}
-*/
 
 //Helper functions
 
@@ -424,23 +295,12 @@ void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget
 		for(x=0;x<X;x++){
 			if(((p_shape_index[y*X+x] - htarget)<hdelta) && (p_img[y*X+x] >= 100)){
 				p_hmat_z[y*X+x] += p_img[y*X+x];
-				//printf("%d ",p_hmat_z[y*X+x]);
+				printf("%f ",p_shape_index[y*X+x]);
 			}
 		}
-		//printf("\n");
 	}
 	return;
 }
-
-/*
-void maximumBoxFilter(int *p_hmat_z, int n){
-	
-}
-
-void noise_filter(int *p_hmat_z){
-	
-}
-*/
 
 /* The following function estimates the horizon based on the pitch and roll angles */
 void horizonEstimator(int theta, int phi, int pitchGain, int Y, float *m, float *b)
@@ -535,10 +395,6 @@ void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows)
 		}
 		printf("\n");
 	}
-	for(i=0;i<n_rows;i++){
-		printf("%d ",p_navInput[i]);
-	}
-	printf("\n");
 	
 	for(i=0;i<n_columns;i++)
 	{

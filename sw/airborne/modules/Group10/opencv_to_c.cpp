@@ -10,7 +10,7 @@ void noiseFilter(int *p_hmat_z,int X,int Y){
 	//printf("We got here");
 	int x,y;
 	
-	maximumBoxFilter(2,p_hmat_z,p_hmat_z);
+	maximumBoxFilter(5,p_hmat_z,p_hmat_z);
 	int fch = 50;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
