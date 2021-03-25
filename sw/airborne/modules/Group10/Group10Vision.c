@@ -58,13 +58,13 @@ struct image_t *imageProcess(struct image_t *image){
 	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 
-	/* printf("First: \n");
+	printf("First: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
-			printf("%d ",hmat_z[y*X+x]);
+			printf("%d ",img[y*X+x]);
 		}
 		printf("\n");
-	}*/
+	}
 
 	noiseFilter(hmat_z,X,Y);
 
@@ -89,13 +89,13 @@ struct image_t *imageProcess(struct image_t *image){
 
 	cluster_filter(cluster, X, Y, filteredImage);
 
-	printf("Shape: \n");
+	/*printf("Shape: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%f ",shape_index[y*X+x]);
 		}
 		printf("\n");
-	}
+	}*/
 
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
 
