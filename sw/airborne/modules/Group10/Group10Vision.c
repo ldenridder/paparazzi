@@ -40,9 +40,11 @@ struct image_t *imageProcess(struct image_t *image){
 	
 	//Convert image to array
 	int x; int y;
+	int k = 1;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
-			img[y*X+x] = imageValues[y*X+x];
+			img[y*X+x] = imageValues[k];
+			k += 2;
 		}
 	}
 
@@ -195,7 +197,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 85){
+			if((i-firstIndex) < 1000){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
@@ -231,7 +233,7 @@ void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_i
 			D = (p_xx_grad[i*X+j])*(p_yy_grad[i*X+j]) - (p_xy_grad[i*X+j])*(p_xy_grad[i*X+j]);
 			L1 = 0.5*T + sqrt((T*T)/4 - D);
 			L2 = 0.5*T - sqrt((T*T)/4 - D);
-			if(L1>L2){Lk1 = L1; Lk2 = L2;}
+			if(L1<L2){Lk1 = L1; Lk2 = L2;}
 			else{Lk1 = L2; Lk2 = L1;}
 			Ldiff = Lk2 - Lk1;
 			Ladds = Lk2 + Lk1;
