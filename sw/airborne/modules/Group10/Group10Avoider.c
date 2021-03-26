@@ -35,8 +35,8 @@ float slow_velocity = 2.f;  		 // slow flight speed (used for turning) [m/s]
 float soft_heading_rate = 3.14159f/12;	 // soft heading rate [rad/s]
 float hard_heading_rate = 3.14159f/6; 	 // fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;    // stop heading rate [rad/s]
-int floor_count_threshold_low = 3500;
-int floor_count_threshold_high = 3500;
+//int floor_count_threshold_low = 3500;
+//int floor_count_threshold_high = 3500;
 int straight_heading_threshold = 6;	 // threshold straight [rad/s]
 int soft_heading_threshold = 4;	     	 // threshold slow [rad/s]
 int hard_heading_threshold = 2;		 // threshold hard [rad/s]
@@ -59,7 +59,7 @@ int navInput5 = 0;
 int navInput6 = 0;
 int navInput7 = 0;
 
-#ifndef FLOOR_VISUAL_DETECTION_ID
+/*#ifndef FLOOR_VISUAL_DETECTION_ID
 #error This module requires two color filters, as such you have to define FLOOR_VISUAL_DETECTION_ID to the orange filter
 #error Please define FLOOR_VISUAL_DETECTION_ID to be COLOR_OBJECT_DETECTION1_ID or COLOR_OBJECT_DETECTION2_ID in your airframe
 #endif
@@ -71,7 +71,7 @@ static void floor_detection_cb(uint8_t __attribute__((unused)) sender_id,
 {
   floor_count = quality;
   floor_centroid = pixel_y;
-}
+}*/
 
 //
 #ifndef NAVIGATION_VECTOR_ID
@@ -110,7 +110,7 @@ void avoiderInit(void){
 	//printf("navInput HEREHEREHEHEHE %d %d %d", navInput1,navInput2,navInput3); //for debugging
 //added
 	// bind our colorfilter callbacks to receive the color filter outputs
-	AbiBindMsgVISUAL_DETECTION(FLOOR_VISUAL_DETECTION_ID, &floor_detection_ev, floor_detection_cb);
+//	AbiBindMsgVISUAL_DETECTION(FLOOR_VISUAL_DETECTION_ID, &floor_detection_ev, floor_detection_cb);
 }
 
 void avoiderPeriodic(void)
@@ -122,7 +122,7 @@ void avoiderPeriodic(void)
   }
 
   // compute current color thresholds
- printf("Color_count: %d  thresholds: %d %d: \n", floor_count, floor_count_threshold_low, floor_count_threshold_high);
+ //printf("Color_count: %d  thresholds: %d %d: \n", floor_count, floor_count_threshold_low, floor_count_threshold_high);
  printf("Current velocity: %f \n", current_velocity);
  printf("Current heading rate: %f \n", current_heading_rate);
  printf("Navigation state: %d \n", navigation_state);
@@ -132,27 +132,28 @@ void avoiderPeriodic(void)
       //count++; // Increase counter for the time of the direction array
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
-      if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
+      /*if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
 	i = 0;
         navigation_state = FIRST_STOP_FLOOR;
-      } else if(navInput4 > straight_heading_threshold){ //Fly straight when possible
+      } else*/
+      if(navInput4 > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
       } else if(navInput4 > soft_heading_threshold && navInput3 > soft_heading_threshold+1 && navInput3 > navInput5){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
         navigation_state = SOFT_LEFT;
       } else if(navInput4 > soft_heading_threshold && navInput5 > soft_heading_threshold+1){
         navigation_state = SOFT_RIGHT;
       } else if(navInput4 > soft_heading_threshold && navInput2 > soft_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
-	navigation_state = HARD_LEFT;
+     	navigation_state = HARD_LEFT;
       } else if(navInput4 > soft_heading_threshold && navInput5 > soft_heading_threshold+1){
         navigation_state = HARD_RIGHT;
       } else if(navInput4 > soft_heading_threshold){ //Fly slower straight
         navigation_state = SLOW_STRAIGHT;
       } else if(navInput4 > hard_heading_threshold && navInput2 > hard_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
-	navigation_state = HARD_LEFT;
+     	navigation_state = HARD_LEFT;
       } else if(navInput4 > hard_heading_threshold && navInput5 > hard_heading_threshold+1){
         navigation_state = HARD_RIGHT;
       } else if(navInput1 > stop_heading_threshold && navInput1 > navInput7){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
-	navigation_state = STOP_LEFT;
+	    navigation_state = STOP_LEFT;
       } else{
         navigation_state = STOP_RIGHT;
       }
@@ -161,7 +162,7 @@ void avoiderPeriodic(void)
 
 
 
-
+/*
     case FIRST_STOP_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
           guidance_h_set_guided_body_vel(0, 0);
           guidance_h_set_guided_heading_rate(-stop_heading_rate);
@@ -199,6 +200,7 @@ void avoiderPeriodic(void)
 
 	  break;
 
+*/
     case STOP_LEFT: // The drone is stopped and rotates with a large heading rate
       guidance_h_set_guided_body_vel(0, 0);
       guidance_h_set_guided_heading_rate(-stop_heading_rate);

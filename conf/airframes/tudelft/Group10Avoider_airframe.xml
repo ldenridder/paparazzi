@@ -32,22 +32,23 @@
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
       
-      <!-- Detect orange -->
+      <!-- Detect orange
       <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="41"/>
       <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="183"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="53"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="121"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="134"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="249"/>
-            
+            -->
       
-      <!-- Detect green -->
+      <!-- Detect green
       <define name="COLOR_OBJECT_DETECTOR_LUM_MIN2" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_LUM_MAX2" value="255"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MIN2" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="110"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="130"/>
+      -->
     </target>
     
       <!-- Subsystem section -->
@@ -77,7 +78,7 @@
       <define name="VIDEO_CAPTURE_FPS" value="10"/>
     </module>
     
-    
+    <!--
     <module name="cv_detect_color_object">
       <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera"/>
       <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0"/>
@@ -87,10 +88,10 @@
       <define name="COLOR_OBJECT_DETECTOR_FPS2" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_DRAW2" value="1"/>
     </module>
-    <module name="Group10Avoider_module">
-      <define name="FLOOR_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION2_ID"/>
+    -->
+    <module name="Group10Avoider_module"/>
+      <!-- <define name="FLOOR_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION2_ID"/> -->
       
-    </module>
     <module name="Group10Vision_module"/>
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
