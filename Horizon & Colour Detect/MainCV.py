@@ -11,9 +11,12 @@ import math as mt
 
 folder = 'fotos/'
 images= []
+filename = []
 
 for entry in os.listdir(folder):
-    images.append(cv2.imread(str(folder+entry),0))
+    x = cv2.imread(str(folder+entry),0)
+    images.append(x)#cv2.rotate(x, cv2.ROTATE_90_COUNTERCLOCKWISE))
+    filename.append(entry)
 
 ###### end of import and retrieval #######
 
@@ -70,31 +73,6 @@ def sum_mass(label, i):
 
     return sum_int_clump
 
-def create_grid_boxes(num_col, num_rows):
-    ## below is a function that creates coordinates used in the sum calc for the integral image per grid box
-    ### create top left top right bottom left bottom right coordinates of the grid box of interest
-    num_col = num_col
-    num_rows = num_rows
-    box_x_size = 520 / num_col
-    box_y_size = 240 / num_rows
-
-    # 4 points for every box ##
-    points_list = []
-    for n in range(num_col):
-        for k in range(num_rows):
-            TL_x = n * box_x_size
-            TL_y = k * box_y_size
-            BL_x = TL_x
-            BL_y = TL_y + box_y_size
-            BR_x = BL_x + box_x_size
-            BR_y = BL_y
-            TR_x = TL_x + box_x_size
-            TR_y = TL_y
-            points_string = [int(TL_x), int(TL_y)], [int(BL_x), int(BL_y)], [int(BR_x), int(BR_y)], [int(TR_x),
-                                                                                                     int(TR_y)]
-            points_list.append(points_string)
-    return points_list
-
 def horizon(theta,phi,Y,pitchGain):
     #Theta and phi given in degrees
     #X and Y given in pixels
@@ -140,9 +118,9 @@ def grid_counter(all_objects, n_rows, n_columns):
         for j in range(n_columns):
             grid_pixels[i,j] = np.ndarray.sum(all_objects[int(i*grid_heigth):int((i+1)*grid_heigth - 1), int(j*grid_width):int((j+1)*grid_width - 1)])
 
-    grid_percentage = grid_pixels/grid_width/grid_heigth*100
+    # grid_percentage = grid_pixels/grid_width/grid_heigth*100
 
-    return grid_percentage
+    return grid_pixels
 
 def output_conversion(grid_percentage):
     nav_input = 7*[0]
@@ -171,9 +149,12 @@ for image in images:
     ## Hessian of Z matrix produced
     xx_grad, yy_grad, xy_grad = gradient_image(image)
     shape_index_matrix = shape_ind(xx_grad, yy_grad, xy_grad)
+    # print(shape_index_matrix)
+    # print(len(shape_index_matri/x), len(shape_index_matrix[0]))
 
     ## Calculate Hessian matrix and filter on noise
     hmat_z = hmat_z_func(-0.5) + hmat_z_func(.5) + hmat_z_func(0)
+    # print(hmat_z[21])
     hmat_z = noise_filter(hmat_z)
 
     ## Identifying the individual objects
@@ -206,7 +187,7 @@ for image in images:
         sum_int_clump = sum_mass(label, i)
 
         ## For loop that excludes objects that are smaller than certain size and do not cross the horizon
-        if sum_int_clump > 1000 and i != 0 and horizon_filter(object_x_range,object_y_range,m,b,buffer) == False:
+        if sum_int_clump > 1000 and horizon_filter(object_x_range,object_y_range,m,b,buffer) == False:
 
             ## Include object in all objects and append information to dictionary
             all_objects += np.where(label == i, 1, 0)
@@ -215,23 +196,40 @@ for image in images:
     ## Find the percentage of pixels covered by object in the grid
     grid_percentage = grid_counter(all_objects, n_rows, n_columns)
     nav_input = output_conversion(grid_percentage)
-    print(nav_input)
-    # try:
-    #     # print(dict_l_objects)
-    #     # print(grid_percentage)
+    print(filename[counter-1], nav_input)
 
-    #
-    #     ### this is the heatmap plot, you can use vmax as a measure of density per grid box, leaving it out gives the real range of density
-    #     # seaborn.heatmap(all_objects, vmin=0, vmax=100)  # ,vmax=800)
-    #     # plt.show()
-    # except:
-    #     continue
+########## Only to check images! Not to implement in C! ############
+    for j in dict_l_objects:
+        new_image = cv2.rectangle(image, pt1=(dict_l_objects[j]['x_range'][0], dict_l_objects[j]['y_range'][1]),
+                                  pt2=(dict_l_objects[j]['x_range'][1], dict_l_objects[j]['y_range'][0]),
+                                  color=(255, 0, 0), thickness=3)
+
+    if len(dict_l_objects) != 0:
+        plt.clf()
+        plt.imshow(new_image)
+        plt.title(str(filename[counter-1]))
+        plt.vlines([74, 148, 222, 296, 370, 444], 0, 240)
+        plt.hlines([27, 54, 81, 109, 136, 163, 190, 217], 0, 520)
+        plt.axis([0, 519, 239, 0])
+        plt.show()
+
+    else:
+        plt.clf()
+        plt.imshow(image)
+        plt.title(str(filename[counter - 1]))
+        plt.vlines([74, 148, 222, 296, 370, 444], 0, 240)
+        plt.hlines([27, 54, 81, 109, 136, 163, 190, 217], 0, 520)
+        plt.axis([0, 519, 239, 0])
+        plt.show()
+
+########### Visual check ends here ###################
 
 ## Counter and timer calculation
 b = time.perf_counter()
 run_time = b - a
 
 print(run_time, 'seconds for', counter,
-      'images with object detection, grid construction and plotting(with slow ass seaborn)')
+      'images with object detection, grid construction and plotting')
 
 #### end of running code #######
+
