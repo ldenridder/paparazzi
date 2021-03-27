@@ -60,50 +60,42 @@ struct image_t *imageProcess(struct image_t *image){
 	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 
-	printf("First: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",img[y*X+x]);
-		}
-		printf("\n");
-	}
-
 	noiseFilter(hmat_z,X,Y);
-
-	/*printf("Noisefilter: \n");
+	/*
+	printf("HMAT_Z: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
 		}
 		printf("\n");
-	}*/
-
+	}
+*/
 	cluster_creator(hmat_z, X, Y, cluster);
 
-	/*
-	printf("Cluster: \n");
+	cluster_filter(cluster, X, Y, filteredImage);
+
+	printf("CLUSTER: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",cluster[y*X+x]);
 		}
 		printf("\n");
-	}*/
-
-	cluster_filter(cluster, X, Y, filteredImage);
-
-	/*printf("Shape: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%f ",shape_index[y*X+x]);
-		}
-		printf("\n");
-	}*/
+	}
 
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
-
+/*
+	printf("GRID: \n");
+	for(y=0;y<n_rows;y++){
+		for(x=0;x<n_columns;x++){
+			printf("%d ",grid[y*n_columns+x]);
+		}
+		printf("\n");
+	}
+	*/
 	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
+	printf("NAV INPUT: \n");
 	for(x=0;x<n_columns;x++){
 		printf("%d ",navInput[x]);
 	}
@@ -212,7 +204,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 1000){
+			if((i-firstIndex) < 500){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
@@ -312,7 +304,6 @@ void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget
 		for(x=0;x<X;x++){
 			if((fabs(p_shape_index[y*X+x] - htarget)<hdelta) && (p_img[y*X+x] >= 100)){
 				p_hmat_z[y*X+x] += p_img[y*X+x];
-				printf("%f ",p_shape_index[y*X+x]);
 			}
 		}
 	}
@@ -405,13 +396,6 @@ void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_hei
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows)
 {
 	int i, j;
-	
-	for(j=0;j<n_rows;j++){
-		for(i=0;i<n_columns;i++){
-			printf("%d ",p_grid[j*n_columns+i]);
-		}
-		printf("\n");
-	}
 	
 	for(i=0;i<n_columns;i++)
 	{
