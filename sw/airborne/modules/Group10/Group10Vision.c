@@ -73,7 +73,7 @@ struct image_t *imageProcess(struct image_t *image){
 	cluster_creator(hmat_z, X, Y, cluster);
 
 	cluster_filter(cluster, X, Y, filteredImage);
-
+/*
 	printf("CLUSTER: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -81,7 +81,7 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-
+*/
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
 /*
 	printf("GRID: \n");
@@ -138,7 +138,11 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 	{
 		for(j=0;j<X;j++)
 		{
-		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster);} 
+		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){
+			//printf("i = %d\n",i);
+			//printf("j = %d\n",j);
+			Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster);
+		} 
 		running_cluster_ind +=1;
 		}
 	}
@@ -146,6 +150,9 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 
 void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster) 
 {	
+	//printf("i = %d\n",i);
+	//printf("j = %d\n",j);
+	//printf("Entered Check_NB with: y = %d, x = %d \n",(i,j));
 	
 	int k; 
 	int neighb_i[8]={-1,-1,-1,0,0,1,1,1};
