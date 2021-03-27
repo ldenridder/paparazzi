@@ -57,11 +57,11 @@ struct image_t *imageProcess(struct image_t *image){
 	grad_y(x_grad,xy_grad,X,Y);
 	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
-	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
-	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 
 	noiseFilter(hmat_z,X,Y);
-	/*
+/*	
 	printf("HMAT_Z: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -74,10 +74,10 @@ struct image_t *imageProcess(struct image_t *image){
 
 	cluster_filter(cluster, X, Y, filteredImage);
 
-	printf("CLUSTER: \n");
+	printf("filteredImage: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
-			printf("%d ",cluster[y*X+x]);
+			printf("%d ",filteredImage[y*X+x]);
 		}
 		printf("\n");
 	}
@@ -204,7 +204,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 500){
+			if((i-firstIndex) < 100){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
@@ -244,7 +244,18 @@ void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_i
 			else{Lk1 = L2; Lk2 = L1;}
 			Ldiff = Lk2 - Lk1;
 			Ladds = Lk2 + Lk1;
-			p_shape_index[i*X+j] = (2/M_PI)*atan(Ladds/Ldiff);
+			if(Ldiff==0){
+				if(Ladds<0){
+					p_shape_index[i*X+j] = -1;
+					}
+				else if(Ladds>0){
+					p_shape_index[i*X+j] = 1;
+					}
+}			
+			else{
+
+			p_shape_index[i*X+j] = (2/M_PI)*atan(Ladds/Ldiff);}
+
 		}
 	}
 	return;
