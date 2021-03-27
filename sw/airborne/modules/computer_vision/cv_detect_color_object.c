@@ -70,6 +70,8 @@ uint8_t cod_cr_max2 = 0;
 bool cod_draw1 = false;
 bool cod_draw2 = false;
 
+
+
 // define global variables
 struct color_object_t {
   int32_t x_c;
@@ -84,6 +86,8 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
                               uint8_t lum_min, uint8_t lum_max,
                               uint8_t cb_min, uint8_t cb_max,
                               uint8_t cr_min, uint8_t cr_max);
+
+
 
 /*
  * object_detector

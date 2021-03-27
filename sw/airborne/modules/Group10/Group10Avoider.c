@@ -58,6 +58,10 @@ int navInput4 = 0;
 int navInput5 = 0;
 int navInput6 = 0;
 int navInput7 = 0;
+int green_1 = 0;
+int green_2 = 0;
+int green_3 = 0;
+int green_4 = 0;
 
 /*#ifndef FLOOR_VISUAL_DETECTION_ID
 #error This module requires two color filters, as such you have to define FLOOR_VISUAL_DETECTION_ID to the orange filter
@@ -81,13 +85,17 @@ static void floor_detection_cb(uint8_t __attribute__((unused)) sender_id,
 
 static abi_event allowable_distance_ev;
 static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
-                               int __attribute__((unused)) allowableDistance1,
-							   int __attribute__((unused)) allowableDistance2,
-							   int __attribute__((unused)) allowableDistance3,
-							   int __attribute__((unused)) allowableDistance4,
-							   int __attribute__((unused)) allowableDistance5,
-							   int __attribute__((unused)) allowableDistance6,
-							   int __attribute__((unused)) allowableDistance7)
+                               int allowableDistance1,
+							   int allowableDistance2,
+							   int allowableDistance3,
+							   int allowableDistance4,
+							   int allowableDistance5,
+							   int allowableDistance6,
+							   int allowableDistance7,
+							   int green1,
+							   int green2,
+							   int green3,
+							   int green4)
 {
 	navInput1 = allowableDistance1;
 	navInput2 = allowableDistance2;
@@ -96,7 +104,10 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
 	navInput5 = allowableDistance5;
 	navInput6 = allowableDistance6;
 	navInput7 = allowableDistance7;//Pointer to a vector containing the allowable distances in each lane
-
+	green_1 = green1;
+	green_2 = green2;
+	green_3 = green3;
+	green_4 = green4;
 }
 
 

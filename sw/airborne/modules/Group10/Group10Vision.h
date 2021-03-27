@@ -20,6 +20,7 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y);
 void cluster_filter(int *cluster, int X, int Y, int *filteredImage);
 void visionInit(void);
+void green_detect(struct image_t *image, int X, int Y, int *green);
 //void visionPeriodic(void);
 struct image_t *imageProcess(struct image_t *image);
 

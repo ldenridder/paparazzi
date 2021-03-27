@@ -31,7 +31,16 @@ struct image_t *imageProcess(struct image_t *image){
 		filteredImage[i] = 0;
 		hmat_z[i]=0;
 	}
-	
+	int green[4] = {0,0,0,0};
+
+
+	green_detect(image,X,Y,green);
+	int green1 = green[0];
+	int green2 = green[1];
+	int green3 = green[2];
+	int green4 = green[3];
+    printf("green: %d,%d,%d,%d \n",green1,green2,green3,green4);
+
 	//Convert image to greyscale
 	image_to_grayscale(image,image);
 
@@ -60,12 +69,12 @@ struct image_t *imageProcess(struct image_t *image){
 	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 
-	printf("First: \n");
+//	printf("First: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
-			printf("%d ",img[y*X+x]);
+//			printf("%d ",img[y*X+x]);
 		}
-		printf("\n");
+//		printf("\n");
 	}
 
 	noiseFilter(hmat_z,X,Y);
@@ -117,8 +126,65 @@ struct image_t *imageProcess(struct image_t *image){
 	int allowableDistance6 = navInput[5];
 	int allowableDistance7 = navInput[6];
 
-	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7);
+	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7,green1,green2,green3,green4);
+
 	return image;
+}
+
+
+void green_detect(struct image_t *image, int X, int Y, int *green)
+{
+	  int y_min = 0;
+	  int y_max = 250;
+	  int u_min = 0;
+	  int u_max = 110;
+	  int v_min = 0;
+	  int v_max = 130;
+	  int a = 0;
+	  int b = 0;
+	  int c = 0;
+
+	  uint8_t *buf = image->buf;
+
+//	  printf("Test");
+
+	  for (int x=0;x<X;x++){
+	    for (int y=0;y<Y;y++){
+	    	buf += 2 * (y * (image->w) + x); // each pixel has two bytes
+	    	if (
+				(buf[1] >= y_min)
+				&& (buf[1] <= y_max)
+				&& (buf[0] >= u_min)
+				&& (buf[0] <= u_max)
+				&& (buf[2] >= v_min)
+				&& (buf[2] <= v_max)
+			  ){
+				a = x - X/2;
+				b = y - Y/2;
+				c = 2 * ((a >= 0) - (a < 0)) + ((b >= 0) - (b < 0));
+				switch (c){
+				  case  3: //4
+					green[3]++;
+					break;
+				  case -3: //1
+					green[0]++;
+					break;
+				  case -1: //3
+					green[1]++;
+					break;
+				  case  1: //2
+					green[2]++;
+					break;
+				  default:
+					break;
+				}
+				break;
+	    		}
+	    }
+	  }
+//	  printf("Test3");
+	  printf("green: %d,%d,%d,%d \n",green[0],green[1],green[2],green[3]);
+	  return;
 }
 
 
@@ -312,7 +378,7 @@ void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget
 		for(x=0;x<X;x++){
 			if((fabs(p_shape_index[y*X+x] - htarget)<hdelta) && (p_img[y*X+x] >= 100)){
 				p_hmat_z[y*X+x] += p_img[y*X+x];
-				printf("%f ",p_shape_index[y*X+x]);
+//				printf("%f ",p_shape_index[y*X+x]);
 			}
 		}
 	}
@@ -408,9 +474,9 @@ void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows)
 	
 	for(j=0;j<n_rows;j++){
 		for(i=0;i<n_columns;i++){
-			printf("%d ",p_grid[j*n_columns+i]);
+//			printf("%d ",p_grid[j*n_columns+i]);
 		}
-		printf("\n");
+//		printf("\n");
 	}
 	
 	for(i=0;i<n_columns;i++)
