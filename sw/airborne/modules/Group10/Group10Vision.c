@@ -38,11 +38,19 @@ struct image_t *imageProcess(struct image_t *image){
 	uint8_t *imageValues = image->buf;
 
 	
-	//Convert image to array
+	//Convert image to array, keeping in mind that we need to transpose it.
 	int x; int y;
 	int k = 1;
+	/*
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
+			img[y*X+x] = imageValues[k];
+			k += 2;
+		}
+	}
+	*/
+	for(x=0;x<X;x++){
+		for(y=(Y-1);y>=0;y--){
 			img[y*X+x] = imageValues[k];
 			k += 2;
 		}
@@ -73,7 +81,7 @@ struct image_t *imageProcess(struct image_t *image){
 	cluster_creator(hmat_z, X, Y, cluster);
 
 	cluster_filter(cluster, X, Y, filteredImage);
-
+/*
 	printf("filteredImage: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -81,7 +89,7 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-
+*/
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
 /*
 	printf("GRID: \n");
@@ -204,7 +212,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 100){
+			if((i-firstIndex) < 900){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
