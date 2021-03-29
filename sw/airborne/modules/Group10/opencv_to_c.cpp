@@ -9,8 +9,21 @@ using namespace cv;
 void noiseFilter(int *p_hmat_z,int X,int Y){
 	//printf("We got here");
 	int x,y;
-	
-	maximumBoxFilter(6,p_hmat_z,p_hmat_z);
+
+	//int Hmat_z[X*Y];
+	//maximumBoxFilter(3,p_hmat_z,Hmat_z);
+/*
+	int i,j;
+	printf("hmat after max filter ");
+	for(i=0;i<Y;i++){
+		for(j=0;j<X;j++){
+			printf("%d ", Hmat_z[i*X+j]);
+		}
+	printf("\n");
+}
+*/
+
+
 	int fch = 50;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -25,21 +38,47 @@ void noiseFilter(int *p_hmat_z,int X,int Y){
 	return;
 }
 
-void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
-	Mat M(240,520,CV_8UC2,p_hmat_z);
+void maximumBoxFilter(int n, int *p_hmat_z, int *Hmat_z){
+	Mat M(240,520,CV_8UC1,p_hmat_z);
 	Mat imageResult;
 	Mat element = getStructuringElement(MORPH_RECT, Size(n,n),Point(-1,-1));
-	//morphologyEx(M, imageResult, MORPH_CLOSE,element);
+	//morphologyEx(M, imageResult, MORPH_CLOSE, element);
 	dilate(M, imageResult,element);
 	return;
+}
+
+
+
+
+	//morphologyEx(M, imageResult, MORPH_CLOSE, element)
+/*	
+	int i,j;
+	
+	printf("CHECK THIS");
+	for(i=0;i<240;i++){
+		for(j=0;j<520;j++){
+			//p_imgResult[j*520+i] = (int)imageResult.data[j*520+i];
+			
+			printf("%d ",imageResult.at<uint8_t>(i,j));
+		}
+		printf("\n");
+	}
+*/
+/*
+	int i;
+	unsigned char *Rbuff = imageResult.data;
+	for(i=0; i<240*520;i++){
+	Hmat_z[i]= (int)Rbuff[i];
+*/
+
 	
 	//Mat img(240,520,CV_8UC2,imageResult);
 	//p_imgResult = img.data;
 	
 	//p_imgResult = imageResult.data;
-	
-	//int i,j;
 	/*
+	int i,j;
+	
 	printf("CHECK THIS");
 	for(j=0;j<240;j++){
 		for(i=0;i<520;i++){
@@ -49,6 +88,7 @@ void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
 		}
 		printf("\n");
 	}
+	return;
 	*/
 
 	//size = (n,n);
@@ -56,7 +96,7 @@ void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
 	//kernel = cv2.getStructuringElement(shape,size);
 	
 	//cv2.dilate(M,M,kernal); //Not sure if arrays will work here
-}
+
 
 //OLD
 ///////////////////////////////

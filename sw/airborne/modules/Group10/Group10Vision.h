@@ -16,7 +16,7 @@ int array_find(int *img, int i, int j, int X, int grid_height, int grid_width);
 void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_height, int grid_width, int X);
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows);
 void cluster_creator(int *p_img, int X, int Y, int *cluster);
-void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster);
+void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster, int *recursive_depth_stopper);
 int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y);
 void cluster_filter(int *cluster, int X, int Y, int *filteredImage);
 void visionInit(void);
