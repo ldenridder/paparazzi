@@ -141,18 +141,20 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 		visited[v]=0;
 }
 	int running_cluster_ind=0;
+	int recursive_depth_stopper=0;
 	int i, j;
 	for(i=0;i<Y;i++)
 	{
 		for(j=0;j<X;j++)
 		{
-		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster);} 
+		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster, &recursive_depth_stopper);} 
 		running_cluster_ind +=1;
+		recursive_depth_stopper =0;
 		}
 	}
 }
 
-void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster) 
+void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, int X, int Y, int *cluster, int *recursive_depth_stopper) 
 {	
 	
 	int k; 
@@ -164,13 +166,14 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 	cluster[*running_cluster_ind] = i*X + j;
 
 	*running_cluster_ind += 1;
-
+	*recursive_depth_stopper +=1;
+	//printf("recursive_depth_stopper %d \n", *recursive_depth_stopper);
 	for(k=0; k<8; k++) 
 	{	
 		int nbp_i = i+neighb_i[k];
 		int nbp_j = j+neighb_j[k];
-		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1){
-			Check_NB(nbp_i, nbp_j,  visited, p_img, running_cluster_ind, X, Y, cluster);
+		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1 && *recursive_depth_stopper<2500){
+			Check_NB(nbp_i, nbp_j,  visited, p_img, running_cluster_ind, X, Y, cluster, recursive_depth_stopper);
 		} 
 	}
 	return;
@@ -212,7 +215,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 900){
+			if((i-firstIndex) < 2000){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
