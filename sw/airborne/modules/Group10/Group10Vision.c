@@ -47,11 +47,19 @@ struct image_t *imageProcess(struct image_t *image){
 	uint8_t *imageValues = image->buf;
 
 	
-	//Convert image to array
+	//Convert image to array, keeping in mind that we need to transpose it.
 	int x; int y;
 	int k = 1;
+	/*
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
+			img[y*X+x] = imageValues[k];
+			k += 2;
+		}
+	}
+	*/
+	for(x=0;x<X;x++){
+		for(y=(Y-1);y>=0;y--){
 			img[y*X+x] = imageValues[k];
 			k += 2;
 		}
@@ -66,53 +74,46 @@ struct image_t *imageProcess(struct image_t *image){
 	grad_y(x_grad,xy_grad,X,Y);
 	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
-	//hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
-	//hmat_z_func(img,shape_index,hmat_z,0,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
+	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 
-//	printf("First: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-//			printf("%d ",img[y*X+x]);
-		}
-//		printf("\n");
-	}
 
 	noiseFilter(hmat_z,X,Y);
-
-	/*printf("Noisefilter: \n");
+/*	
+	printf("HMAT_Z: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
 		}
 		printf("\n");
-	}*/
-
+	}
+*/
 	cluster_creator(hmat_z, X, Y, cluster);
 
-	/*
-	printf("Cluster: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",cluster[y*X+x]);
-		}
-		printf("\n");
-	}*/
-
 	cluster_filter(cluster, X, Y, filteredImage);
-
-	/*printf("Shape: \n");
+/*
+	printf("filteredImage: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
-			printf("%f ",shape_index[y*X+x]);
+			printf("%d ",filteredImage[y*X+x]);
 		}
 		printf("\n");
-	}*/
-
+	}
+*/
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
-
+/*
+	printf("GRID: \n");
+	for(y=0;y<n_rows;y++){
+		for(x=0;x<n_columns;x++){
+			printf("%d ",grid[y*n_columns+x]);
+		}
+		printf("\n");
+	}
+	*/
 	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
+	printf("NAV INPUT: \n");
 	for(x=0;x<n_columns;x++){
 		printf("%d ",navInput[x]);
 	}
@@ -134,23 +135,22 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 0;
-	  int y_max = 250;
-	  int u_min = 0;
-	  int u_max = 110;
-	  int v_min = 0;
-	  int v_max = 130;
+	  int y_min = 50;
+	  int y_max = 120;
+	  int u_min = 70;
+	  int u_max = 90;
+	  int v_min = 110;
+	  int v_max = 140;
 	  int a = 0;
 	  int b = 0;
 	  int c = 0;
 
 	  uint8_t *buf = image->buf;
-
+	  buf ++;
 //	  printf("Test");
-
 	  for (int x=0;x<X;x++){
 	    for (int y=0;y<Y;y++){
-	    	buf += 2 * (y * (image->w) + x); // each pixel has two bytes
+
 	    	if (
 				(buf[1] >= y_min)
 				&& (buf[1] <= y_max)
@@ -165,9 +165,11 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 				switch (c){
 				  case  3: //4
 					green[3]++;
+					//printf("X,Y %d, %d", x,y);
 					break;
 				  case -3: //1
 					green[0]++;
+					//printf("X,Y %d, %d", x,y);
 					break;
 				  case -1: //3
 					green[1]++;
@@ -178,12 +180,13 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 				  default:
 					break;
 				}
-				break;
+				//break;
 	    		}
+	    	buf += 3; // each pixel has two bytes
 	    }
 	  }
 //	  printf("Test3");
-	  printf("green: %d,%d,%d,%d \n",green[0],green[1],green[2],green[3]);
+
 	  return;
 }
 
@@ -278,7 +281,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 1000){
+			if((i-firstIndex) < 900){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
@@ -318,7 +321,18 @@ void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_i
 			else{Lk1 = L2; Lk2 = L1;}
 			Ldiff = Lk2 - Lk1;
 			Ladds = Lk2 + Lk1;
-			p_shape_index[i*X+j] = (2/M_PI)*atan(Ladds/Ldiff);
+			if(Ldiff==0){
+				if(Ladds<0){
+					p_shape_index[i*X+j] = -1;
+					}
+				else if(Ladds>0){
+					p_shape_index[i*X+j] = 1;
+					}
+}			
+			else{
+
+			p_shape_index[i*X+j] = (2/M_PI)*atan(Ladds/Ldiff);}
+
 		}
 	}
 	return;
@@ -378,7 +392,6 @@ void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget
 		for(x=0;x<X;x++){
 			if((fabs(p_shape_index[y*X+x] - htarget)<hdelta) && (p_img[y*X+x] >= 100)){
 				p_hmat_z[y*X+x] += p_img[y*X+x];
-//				printf("%f ",p_shape_index[y*X+x]);
 			}
 		}
 	}
@@ -472,13 +485,7 @@ void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows)
 {
 	int i, j;
 	
-	for(j=0;j<n_rows;j++){
-		for(i=0;i<n_columns;i++){
-//			printf("%d ",p_grid[j*n_columns+i]);
-		}
-//		printf("\n");
-	}
-	
+
 	for(i=0;i<n_columns;i++)
 	{
 		for(j=n_rows-1;j>=0;j--)

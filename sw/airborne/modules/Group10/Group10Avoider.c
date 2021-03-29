@@ -17,8 +17,8 @@ For the navigation it was chosen to make different cases with the default case b
 
 enum navigation_state_t {
   DIRECTION,
-  FIRST_STOP_FLOOR,
-  SECOND_STOP_FLOOR,
+  STOP_LEFT_FLOOR,
+  STOP_RIGHT_FLOOR,
   STOP_LEFT,
   HARD_LEFT,
   SOFT_LEFT,
@@ -35,12 +35,12 @@ float slow_velocity = 2.f;  		 // slow flight speed (used for turning) [m/s]
 float soft_heading_rate = 3.14159f/12;	 // soft heading rate [rad/s]
 float hard_heading_rate = 3.14159f/6; 	 // fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;    // stop heading rate [rad/s]
-//int floor_count_threshold_low = 3500;
+int floor_count_threshold = 300;
 //int floor_count_threshold_high = 3500;
-int straight_heading_threshold = 6;	 // threshold straight [rad/s]
-int soft_heading_threshold = 4;	     	 // threshold slow [rad/s]
+int straight_heading_threshold = 4;	 // threshold straight [rad/s]
+int soft_heading_threshold = 3;	     	 // threshold slow [rad/s]
 int hard_heading_threshold = 2;		 // threshold hard [rad/s]
-int stop_heading_threshold = 5;	 	 // threshold stop [rad/s]
+int stop_heading_threshold = 2;	 	 // threshold stop [rad/s]
 
 
 
@@ -143,11 +143,13 @@ void avoiderPeriodic(void)
       //count++; // Increase counter for the time of the direction array
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
-      /*if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
-	i = 0;
-        navigation_state = FIRST_STOP_FLOOR;
-      } else*/
-      if(navInput4 > straight_heading_threshold){ //Fly straight when possible
+      if(green_1 <floor_count_threshold && green_1 < green_2){ // floor count is compared to the lower threshold
+        i = 0;
+    	navigation_state = STOP_LEFT_FLOOR;
+      } else if(green_2 <floor_count_threshold){ // floor count is compared to the lower threshold
+        i = 0;
+    	navigation_state = STOP_RIGHT_FLOOR;
+      } else if(navInput4 > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
       } else if(navInput4 > soft_heading_threshold && navInput3 > soft_heading_threshold+1 && navInput3 > navInput5){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
         navigation_state = SOFT_LEFT;
@@ -172,46 +174,46 @@ void avoiderPeriodic(void)
 
 
 
-
-/*
-    case FIRST_STOP_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
+    case STOP_LEFT_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
           guidance_h_set_guided_body_vel(0, 0);
-          guidance_h_set_guided_heading_rate(-stop_heading_rate);
 
-          current_heading_rate = -stop_heading_rate;
+
           current_velocity = 0;
-          if(i == 3){ // After three iterations the 90 degrees rotations is achieved
-            navigation_state = SECOND_STOP_FLOOR;
+          if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+        	guidance_h_set_guided_heading_rate(0);
+        	current_heading_rate = 0;
+        	navigation_state = DIRECTION;
           } else{
-            navigation_state = FIRST_STOP_FLOOR;
+        	guidance_h_set_guided_heading_rate(-stop_heading_rate);
+            current_heading_rate = -stop_heading_rate;
+
+            navigation_state = STOP_LEFT_FLOOR;
             i++;
           }
 
           break;
 
-	case SECOND_STOP_FLOOR: //This checks whether this time there is enough floor and there are no objects in front of you otherwise it rotates another 90 degrees
-	  guidance_h_set_guided_body_vel(0, 0);
-	  if (floor_count > floor_count_threshold_high && navInput4 > straight_heading_threshold) {
-		guidance_h_set_guided_heading_rate(0);
-		current_heading_rate = 0;
-		current_velocity = 0;
-		navigation_state = DIRECTION;
-	  }
-	  else {
-		guidance_h_set_guided_heading_rate(-stop_heading_rate);
-		current_heading_rate = 0;
-		current_velocity = 0;
-		if(i == 6){
-		  navigation_state = DIRECTION;
-		} else{
-		  navigation_state = SECOND_STOP_FLOOR;
-		  i++;
-	  }
-	  }
 
-	  break;
 
-*/
+    case STOP_RIGHT_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
+          guidance_h_set_guided_body_vel(0, 0);
+
+          current_velocity = 0;
+          if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+        	guidance_h_set_guided_heading_rate(0);
+        	current_heading_rate = 0;
+        	navigation_state = DIRECTION;
+          } else{
+        	guidance_h_set_guided_heading_rate(stop_heading_rate);
+            current_heading_rate = stop_heading_rate;
+
+            navigation_state = STOP_RIGHT_FLOOR;
+            i++;
+          }
+
+          break;
+
+
     case STOP_LEFT: // The drone is stopped and rotates with a large heading rate
       guidance_h_set_guided_body_vel(0, 0);
       guidance_h_set_guided_heading_rate(-stop_heading_rate);

@@ -10,25 +10,28 @@ void noiseFilter(int *p_hmat_z,int X,int Y){
 	//printf("We got here");
 	int x,y;
 	
-	maximumBoxFilter(2,p_hmat_z,p_hmat_z);
+	maximumBoxFilter(6,p_hmat_z,p_hmat_z);
 	int fch = 50;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			if(p_hmat_z[y*X+x] < fch){
-				p_hmat_z[y*X+x] = 0;
+				p_hmat_z[y*X+x] = (uint8_t)0;
 			}
 			else{
-				p_hmat_z[y*X+x] = 1;
+				p_hmat_z[y*X+x] = (uint8_t)1;
 			}
 		}
 	}
+	return;
 }
 
 void maximumBoxFilter(int n, int *p_hmat_z, int *p_imgResult){
 	Mat M(240,520,CV_8UC2,p_hmat_z);
 	Mat imageResult;
 	Mat element = getStructuringElement(MORPH_RECT, Size(n,n),Point(-1,-1));
+	//morphologyEx(M, imageResult, MORPH_CLOSE,element);
 	dilate(M, imageResult,element);
+	return;
 	
 	//Mat img(240,520,CV_8UC2,imageResult);
 	//p_imgResult = img.data;
