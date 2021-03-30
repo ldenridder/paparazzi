@@ -31,15 +31,16 @@ enum navigation_state_t {
 // define settings
 float fast_velocity = 2.f;              // fast flight speed [m/s]
 float slow_velocity = 1.f;  		 	// slow flight speed (used for turning) [m/s]
-float soft_heading_rate = 3.14159f/12;	// soft heading rate [rad/s]
-float hard_heading_rate = 3.14159f/6; 	// fast heading rate [rad/s]
+float soft_heading_rate = 3.14159f/8;	// soft heading rate [rad/s]
+float hard_heading_rate = 3.14159f/4; 	// fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;   // stop heading rate [rad/s]
 int floor_count_threshold = 800;	 	// threshold for the green pixel count
 int straight_heading_threshold = 3;	    // threshold straight
 int soft_heading_threshold = 2;	     	// threshold slow
 int hard_heading_threshold = 1;		    // threshold hard
 int stop_heading_threshold = 0;	 	    // threshold stop
-
+int Lsum = 0;							// Sum of the left navInputs (1,2,3)
+int Rsum = 0;							// Sum of the right navInputs (5,6,7)
 
 
 // define and initialise global variables
@@ -111,6 +112,9 @@ void avoiderPeriodic(void)
     return;
   }
 
+ Lsum = navInput1 + navInput2 + navInput3; //Sum of detection left
+ Rsum = navInput1 + navInput2 + navInput3; //Sum of detection right
+
  printf("Current velocity: %f \n", current_velocity);
  printf("Current heading rate: %f \n", current_heading_rate);
  printf("Navigation state: %d \n", navigation_state);
@@ -120,14 +124,14 @@ void avoiderPeriodic(void)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       if(green_1 < floor_count_threshold && green_1 < green_2){ // floor count is compared to the threshold
         i = 0;
-    	navigation_state = STOP_LEFT_FLOOR;
+    	navigation_state = STOP_RIGHT_FLOOR;
       } else if(green_2 < floor_count_threshold){ // floor count is compared to the threshold
         i = 0;
-    	navigation_state = STOP_RIGHT_FLOOR;
+    	navigation_state = STOP_LEFT_FLOOR;
       } else if(navInput3 > straight_heading_threshold && navInput4 > straight_heading_threshold && navInput5 > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
 
-        // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
+        // Check if an object is in the straight line at some distance whether a SOFT left or soft right are prefferable
       } else if(navInput4 > soft_heading_threshold){
     	  if(navInput4 > navInput3 && navInput5 > navInput3){
           navigation_state = SOFT_RIGHT;
@@ -135,28 +139,48 @@ void avoiderPeriodic(void)
     	  else{
           navigation_state = SOFT_LEFT;
     	  }
-        // Check if an object is at some distance whether a soft left or soft right are prefferable
+        // Check if an object is at some distance whether a soft left or SOFT right are prefferable
       } else if(navInput3 > soft_heading_threshold && navInput4 > navInput3 && navInput5 > navInput3){
         navigation_state = SOFT_RIGHT;
       } else if(navInput5 > soft_heading_threshold && navInput4 > navInput5 && navInput3 > navInput5){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
         navigation_state = SOFT_LEFT;
 
-      } else if(navInput4 > hard_heading_threshold && navInput2 > hard_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
-     	navigation_state = HARD_LEFT;
-      } else if(navInput4 > hard_heading_threshold && navInput5 > hard_heading_threshold+1){
+        // Check if an object is in the straight line at some distance whether a HARD left or hard right are prefferable
+      } else if(navInput4 > hard_heading_threshold){
+    	  if(navInput4 > navInput3 && navInput5 > navInput3){
+          navigation_state = HARD_RIGHT;
+    	  }
+    	  else{
+          navigation_state = HARD_LEFT;
+    	  }
+        // Check if an object is at some distance whether a HARD left or right are prefferable
+      } else if(navInput3 > hard_heading_threshold && navInput4 > navInput3 && navInput5 > navInput3){
         navigation_state = HARD_RIGHT;
+      } else if(navInput5 > hard_heading_threshold && navInput4 > navInput5 && navInput3 > navInput5){
+        navigation_state = HARD_LEFT;
+        // At this point check column 2 and 6 too, as these objects can also be very close
+      } else if(navInput2 > hard_heading_threshold && navInput4 > navInput2 && navInput5 > navInput2){
+        navigation_state = HARD_RIGHT;
+      } else if(navInput6 > hard_heading_threshold && navInput4 > navInput6 && navInput3 > navInput6){
+        navigation_state = HARD_LEFT;
 
-      } else if(navInput4 > soft_heading_threshold){ //Fly slower straight
-        navigation_state = SLOW_STRAIGHT;
-      } else if(navInput4 > hard_heading_threshold && navInput2 > hard_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
-     	navigation_state = HARD_LEFT;
-      } else if(navInput4 > hard_heading_threshold && navInput5 > hard_heading_threshold+1){
-        navigation_state = HARD_RIGHT;
+        // If there still is no good option to fly towards, start rotating to either left or right, whichever is the best
+      } else if(navInput2 > stop_heading_threshold || navInput3 > stop_heading_threshold || navInput4 > stop_heading_threshold || navInput5 > stop_heading_threshold || navInput6 > stop_heading_threshold ){
+	     if(Lsum > Rsum){
+	    	 navigation_state = STOP_LEFT;
+	     } else{
+	    	 navigation_state = STOP_RIGHT;
+	     }
+      } else{
+        navigation_state = STOP_RIGHT;
+      }
+      /*
       } else if(navInput1 > stop_heading_threshold && navInput1 > navInput7){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
 	    navigation_state = STOP_LEFT;
       } else{
         navigation_state = STOP_RIGHT;
       }
+      */
       break;
 
 
