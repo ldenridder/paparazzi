@@ -148,7 +148,7 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 50; //90
+	  int y_min = 50; //60
 	  int y_max = 120; //150
 	  int u_min = 70; //70
 	  int u_max = 90; //120
