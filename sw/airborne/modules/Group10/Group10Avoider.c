@@ -1,7 +1,6 @@
 #include "modules/Group10/Group10Avoider.h"
 #include "subsystems/abi.h"
 
-//added
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
 #include "state.h"
@@ -30,54 +29,39 @@ enum navigation_state_t {
 };
 
 // define settings
-float fast_velocity = 2.f;               // fast flight speed [m/s]
-float slow_velocity = 1.f;  		 // slow flight speed (used for turning) [m/s]
-float soft_heading_rate = 3.14159f/12;	 // soft heading rate [rad/s]
-float hard_heading_rate = 3.14159f/6; 	 // fast heading rate [rad/s]
-float stop_heading_rate = 3.14159f/2;    // stop heading rate [rad/s]
-int floor_count_threshold = 300;
-//int floor_count_threshold_high = 3500;
-int straight_heading_threshold = 2;	 // threshold straight [rad/s]
-int soft_heading_threshold = 1;	     	 // threshold slow [rad/s]
-int hard_heading_threshold = 0;		 // threshold hard [rad/s]
-int stop_heading_threshold = -1;	 	 // threshold stop [rad/s]
+float fast_velocity = 2.f;              // fast flight speed [m/s]
+float slow_velocity = 1.f;  		 	// slow flight speed (used for turning) [m/s]
+float soft_heading_rate = 3.14159f/12;	// soft heading rate [rad/s]
+float hard_heading_rate = 3.14159f/6; 	// fast heading rate [rad/s]
+float stop_heading_rate = 3.14159f/2;   // stop heading rate [rad/s]
+int floor_count_threshold = 300;	 	// threshold for the green pixel count
+int straight_heading_threshold = 2;	    // threshold straight
+int soft_heading_threshold = 1;	     	// threshold slow
+int hard_heading_threshold = 0;		    // threshold hard
+int stop_heading_threshold = -1;	 	// threshold stop
 
 
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = DIRECTION;   // current state in state machine
-float current_velocity = 0.f;		// current velocity [m/s]
-float current_heading_rate = 0.f;	// current heading rate [rad/s]
-int32_t floor_count = 0;                // green color count from color filter for floor detection
-int32_t floor_centroid = 0;             // floor detector centroid in y direction (along the horizon)
-int i = 0;
-int navInput1 = 0;
-int navInput2 = 0;
-int navInput3 = 0;
-int navInput4 = 0;
-int navInput5 = 0;
-int navInput6 = 0;
-int navInput7 = 0;
-int green_1 = 0;
-int green_2 = 0;
-int green_3 = 0;
-int green_4 = 0;
+float current_velocity = 0.f;							// current velocity [m/s]
+float current_heading_rate = 0.f;						// current heading rate [rad/s]
+int32_t floor_count = 0;             					// green color count from color filter for floor detection
+int32_t floor_centroid = 0;          					// floor detector centroid in y direction (along the horizon)
+int i = 0;												// counter of the green detection
+int navInput1 = 0;										// part of the allowable distance area
+int navInput2 = 0;										// part of the allowable distance area
+int navInput3 = 0;										// part of the allowable distance area
+int navInput4 = 0;										// part of the allowable distance area
+int navInput5 = 0;										// part of the allowable distance area
+int navInput6 = 0;										// part of the allowable distance area
+int navInput7 = 0;										// part of the allowable distance area
+int green_1 = 0;										// part of the green counter
+int green_2 = 0;										// part of the green counter
+int green_3 = 0;										// part of the green counter
+int green_4 = 0;										// part of the green counter
 
-/*#ifndef FLOOR_VISUAL_DETECTION_ID
-#error This module requires two color filters, as such you have to define FLOOR_VISUAL_DETECTION_ID to the orange filter
-#error Please define FLOOR_VISUAL_DETECTION_ID to be COLOR_OBJECT_DETECTION1_ID or COLOR_OBJECT_DETECTION2_ID in your airframe
-#endif
-static abi_event floor_detection_ev;
-static void floor_detection_cb(uint8_t __attribute__((unused)) sender_id,
-                               int16_t __attribute__((unused)) pixel_x, int16_t pixel_y,
-                               int16_t __attribute__((unused)) pixel_width, int16_t __attribute__((unused)) pixel_height,
-                               int32_t quality, int16_t __attribute__((unused)) extra)
-{
-  floor_count = quality;
-  floor_centroid = pixel_y;
-}*/
 
-//
 #ifndef NAVIGATION_VECTOR_ID
 #endif
 
@@ -103,7 +87,7 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
 	navInput4 = allowableDistance4;
 	navInput5 = allowableDistance5;
 	navInput6 = allowableDistance6;
-	navInput7 = allowableDistance7;//Pointer to a vector containing the allowable distances in each lane
+	navInput7 = allowableDistance7;
 	green_1 = green1;
 	green_2 = green2;
 	green_3 = green3;
@@ -116,31 +100,22 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
  * Initialisation function
  */
 void avoiderInit(void){
-	//printf("Got to avoiderInit");
 	AbiBindMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID, &allowable_distance_ev, allowable_distance_cb);
-	//printf("navInput HEREHEREHEHEHE %d %d %d", navInput1,navInput2,navInput3); //for debugging
-//added
-	// bind our colorfilter callbacks to receive the color filter outputs
-//	AbiBindMsgVISUAL_DETECTION(FLOOR_VISUAL_DETECTION_ID, &floor_detection_ev, floor_detection_cb);
 }
 
 void avoiderPeriodic(void)
 {
   // Only run the mudule if we are in the correct flight mode
   if (guidance_h.mode != GUIDANCE_H_MODE_GUIDED) {
-    navigation_state = DIRECTION;
+    navigation_state = DIRECTION; // Direction is the decision tree where the decisions are made
     return;
   }
 
-  // compute current color thresholds
- //printf("Color_count: %d  thresholds: %d %d: \n", floor_count, floor_count_threshold_low, floor_count_threshold_high);
  printf("Current velocity: %f \n", current_velocity);
  printf("Current heading rate: %f \n", current_heading_rate);
  printf("Navigation state: %d \n", navigation_state);
-// printf("Allowable Distance : %d \n", navInput);
  switch (navigation_state){
     case DIRECTION:
-      //count++; // Increase counter for the time of the direction array
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       if(green_1 <floor_count_threshold && green_1 < green_2){ // floor count is compared to the lower threshold
@@ -174,47 +149,40 @@ void avoiderPeriodic(void)
 
 
 
-    case STOP_LEFT_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
-          guidance_h_set_guided_body_vel(0, 0);
+    case STOP_LEFT_FLOOR: //If there is to little floor on the right, the drone will rotate with 90 degrees towards the left
+	  guidance_h_set_guided_body_vel(0, 0);
 
 
-          current_velocity = 0;
-          if(i == 2){ // After three iterations the 90 degrees rotations is achieved
-        	guidance_h_set_guided_heading_rate(0);
-        	current_heading_rate = 0;
-        	navigation_state = DIRECTION;
-          } else{
-        	guidance_h_set_guided_heading_rate(-stop_heading_rate);
-            current_heading_rate = -stop_heading_rate;
+	  current_velocity = 0;
+	  if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+		guidance_h_set_guided_heading_rate(0);
+		current_heading_rate = 0; //The heading rate is set to 0, so the drone is completely still
+		navigation_state = DIRECTION;
+	  } else{
+		guidance_h_set_guided_heading_rate(-stop_heading_rate);
+		current_heading_rate = -stop_heading_rate;
+		navigation_state = STOP_LEFT_FLOOR;
+		i++;
+	  }
+	  break;
 
-            navigation_state = STOP_LEFT_FLOOR;
-            i++;
-          }
+    case STOP_RIGHT_FLOOR: //If there is to little floor on the left, the drone will rotate with 90 degrees towards the right
+	  guidance_h_set_guided_body_vel(0, 0);
 
-          break;
+	  current_velocity = 0;
+	  if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+		guidance_h_set_guided_heading_rate(0);
+		current_heading_rate = 0; //The heading rate is set to 0, so the drone is completely still
+		navigation_state = DIRECTION;
+	  } else{
+		guidance_h_set_guided_heading_rate(stop_heading_rate);
+		current_heading_rate = stop_heading_rate;
+		navigation_state = STOP_RIGHT_FLOOR;
+		i++;
+	  }
+	  break;
 
-
-
-    case STOP_RIGHT_FLOOR: //If there is to little floor, the drone will rotate with 90 degrees towards the left
-          guidance_h_set_guided_body_vel(0, 0);
-
-          current_velocity = 0;
-          if(i == 2){ // After three iterations the 90 degrees rotations is achieved
-        	guidance_h_set_guided_heading_rate(0);
-        	current_heading_rate = 0;
-        	navigation_state = DIRECTION;
-          } else{
-        	guidance_h_set_guided_heading_rate(stop_heading_rate);
-            current_heading_rate = stop_heading_rate;
-
-            navigation_state = STOP_RIGHT_FLOOR;
-            i++;
-          }
-
-          break;
-
-
-    case STOP_LEFT: // The drone is stopped and rotates with a large heading rate
+    case STOP_LEFT: // The drone is stopped and rotates with a large heading rate to the left
       guidance_h_set_guided_body_vel(0, 0);
       guidance_h_set_guided_heading_rate(-stop_heading_rate);
 
@@ -224,7 +192,7 @@ void avoiderPeriodic(void)
 
       break;
 
-    case HARD_LEFT: // The drone flies slow and rotates with a pretty large heading rate
+    case HARD_LEFT: // The drone flies slow and rotates with a pretty large heading rate to the left
       guidance_h_set_guided_body_vel(slow_velocity, 0);
       guidance_h_set_guided_heading_rate(-hard_heading_rate);
 
@@ -234,7 +202,7 @@ void avoiderPeriodic(void)
 
       break;
 
-    case SOFT_LEFT: // The drone flies fast and rotates with a small heading rate
+    case SOFT_LEFT: // The drone flies fast and rotates with a small heading rate to the left
       guidance_h_set_guided_heading_rate(-soft_heading_rate);
       guidance_h_set_guided_body_vel(fast_velocity, 0);
 
@@ -253,7 +221,7 @@ void avoiderPeriodic(void)
       navigation_state = DIRECTION;
       break;
 
-    case SOFT_RIGHT:
+    case SOFT_RIGHT: // The drone flies fast and rotates with a small heading rate to the right
       guidance_h_set_guided_heading_rate(soft_heading_rate);
       guidance_h_set_guided_body_vel(fast_velocity, 0);
 
@@ -262,7 +230,7 @@ void avoiderPeriodic(void)
       navigation_state = DIRECTION;
       break;
 
-    case HARD_RIGHT:
+    case HARD_RIGHT: // The drone flies slow and rotates with a pretty large heading rate to the right
       guidance_h_set_guided_heading_rate(hard_heading_rate);
       guidance_h_set_guided_body_vel(slow_velocity, 0);
 
@@ -271,7 +239,7 @@ void avoiderPeriodic(void)
       navigation_state = DIRECTION;
       break;
 
-    case STOP_RIGHT:
+    case STOP_RIGHT:  // The drone is stopped and rotates with a large heading rate to the right
       guidance_h_set_guided_heading_rate(stop_heading_rate);
       guidance_h_set_guided_body_vel(0, 0);
 
@@ -290,7 +258,8 @@ void avoiderPeriodic(void)
       break;
     default:
       break;
-  }
+
+ }
   return;
 
 }
