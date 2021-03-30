@@ -6,23 +6,23 @@ using namespace std;
 using namespace cv;
 #include "opencv_image_functions.h"
 
-void noiseFilter(int *p_hmat_z,int *hmat_z_new, int X,int Y){
+void noiseFilter(int *p_hmat_z, int X,int Y){
 	//printf("We got here");
 	int x,y;
 
 	//int Hmat_z[X*Y];
-	maximumBoxFilter(10,p_hmat_z);
+	//maximumBoxFilter(10,p_hmat_z);
 
-	int i,j;
+	//int i,j;
 	
-	
+	/*
 	int vmat_z[X*Y];
 
 	for(x=0;x<X*Y;x++){
 		vmat_z[x] = *(p_hmat_z + x);
 	}
-	
-	
+	*/
+	/*
 
 	int fch = 50;
 	for(y=0;y<Y;y++){
@@ -35,6 +35,7 @@ void noiseFilter(int *p_hmat_z,int *hmat_z_new, int X,int Y){
 			}
 		}
 	}
+*/
 
 	//int w;
 
@@ -44,11 +45,12 @@ void noiseFilter(int *p_hmat_z,int *hmat_z_new, int X,int Y){
 	}*/
 	
 	
-
+/*
 	for(x=0;x<X*Y;x++){
 		p_hmat_z[x] = vmat_z[x];
 		
 	}
+*/
 /*
 	printf("v_mat after max filter ");
 	for(i=0;i<Y;i++){
@@ -58,25 +60,25 @@ void noiseFilter(int *p_hmat_z,int *hmat_z_new, int X,int Y){
 	printf("\n");
 }
 */
-	return; 
-}
+	//return; 
+//}
 
 
-/*
-	int fch = 50;
+	
+	int fch = 75;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			if(p_hmat_z[y*X+x] < fch){
-				p_hmat_z[y*X+x] = (uint8_t)0;
+				p_hmat_z[y*X+x] = 0;
 			}
 			else{
-				p_hmat_z[y*X+x] = (uint8_t)1;
+				p_hmat_z[y*X+x] = 1;
 			}
 		}
 	}
 	return;
 }
-*/
+
 
 void maximumBoxFilter(int n, int *p_hmat_z){
 
