@@ -30,17 +30,17 @@ enum navigation_state_t {
 };
 
 // define settings
-float fast_velocity = 4.f;               // fast flight speed [m/s]
-float slow_velocity = 2.f;  		 // slow flight speed (used for turning) [m/s]
+float fast_velocity = 2.f;               // fast flight speed [m/s]
+float slow_velocity = 1.f;  		 // slow flight speed (used for turning) [m/s]
 float soft_heading_rate = 3.14159f/12;	 // soft heading rate [rad/s]
 float hard_heading_rate = 3.14159f/6; 	 // fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;    // stop heading rate [rad/s]
 int floor_count_threshold = 300;
 //int floor_count_threshold_high = 3500;
-int straight_heading_threshold = 4;	 // threshold straight [rad/s]
-int soft_heading_threshold = 3;	     	 // threshold slow [rad/s]
-int hard_heading_threshold = 2;		 // threshold hard [rad/s]
-int stop_heading_threshold = 2;	 	 // threshold stop [rad/s]
+int straight_heading_threshold = 2;	 // threshold straight [rad/s]
+int soft_heading_threshold = 1;	     	 // threshold slow [rad/s]
+int hard_heading_threshold = 0;		 // threshold hard [rad/s]
+int stop_heading_threshold = -1;	 	 // threshold stop [rad/s]
 
 
 
