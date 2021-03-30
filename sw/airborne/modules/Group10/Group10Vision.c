@@ -36,6 +36,8 @@ struct image_t *imageProcess(struct image_t *image){
 
 //Detect amount of green in image. This will be used for boundary detection
 	green_detect(image,X,Y,green);
+	green_detect(image,X,Y,green);
+
 	int green1 = green[0];
 	int green2 = green[1];
 	int green3 = green[2];
@@ -69,7 +71,7 @@ struct image_t *imageProcess(struct image_t *image){
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 	
 	//Filter out noise
-	noiseFilter(hmat_z, hmat_z_new, X,Y);
+	noiseFilter(hmat_z,X,Y);
 	
 	//Create and filter clusters
 	cluster_creator(hmat_z, X, Y, cluster);
@@ -112,12 +114,12 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 50;
-	  int y_max = 120;
-	  int u_min = 70;
-	  int u_max = 90;
-	  int v_min = 110;
-	  int v_max = 140;
+	  int y_min = 50; //60
+	  int y_max = 120; //150
+	  int u_min = 70; //70
+	  int u_max = 90; //120
+	  int v_min = 110; // 110
+	  int v_max = 140; //140
 	  int a = 0;
 	  int b = 0;
 	  int c = 0;
