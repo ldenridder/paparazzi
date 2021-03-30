@@ -2,6 +2,7 @@
 #include "subsystems/abi.h"
 
 //added
+#include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
 #include "state.h"
@@ -10,12 +11,17 @@
 
 #define GROUP_10_VERBOSE TRUE
 
+#define NAV_C // needed to get the nav functions like Inside...
+#include "generated/flight_plan.h"
+
 /*
 For the navigation it was chosen to make different cases with the default case being direction. This case loops through a decision tree based on the floor count and input from th direction array
 */
 
 enum navigation_state_t {
   DIRECTION,
+  OUT_OF_BOUNDS,
+  REENTER_ARENA,
   FIRST_STOP_FLOOR,
   SECOND_STOP_FLOOR,
   STOP_LEFT,
@@ -29,8 +35,8 @@ enum navigation_state_t {
 };
 
 // define settings
-float fast_velocity = 4.f;               // fast flight speed [m/s]
-float slow_velocity = 2.f;  		 // slow flight speed (used for turning) [m/s]
+float fast_velocity = 2.f;               // fast flight speed [m/s]
+float slow_velocity = 1.f;  		 // slow flight speed (used for turning) [m/s]
 float soft_heading_rate = 3.14159f/6;	 // soft heading rate [rad/s]
 float hard_heading_rate = 3.14159f/3; 	 // fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;    // stop heading rate [rad/s]
@@ -49,6 +55,7 @@ float current_velocity = 0.f;		// current velocity [m/s]
 float current_heading_rate = 0.f;	// current heading rate [rad/s]
 int32_t floor_count = 0;                // green color count from color filter for floor detection
 int32_t floor_centroid = 0;             // floor detector centroid in y direction (along the horizon)
+float avoidance_heading_direction = 0;  // heading change direction for avoidance [rad/s]
 int i = 0;
 int navInput1 = 0;
 int navInput2 = 0;
@@ -131,9 +138,11 @@ void avoiderPeriodic(void)
       /*if(floor_count < floor_count_threshold_low){ // floor count is compared to the lower threshold
 	i = 0;
         navigation_state = FIRST_STOP_FLOOR;
-      } else*/
+      } else
       if(Lsum+Rsum > wall_heading_threshold){ //Turns around when going to a whall
-    	  navigation_state = HARD_LEFT;
+    	  navigation_state = HARD_LEFT;*/
+      if(!InsideObstacleZone(GetPosX(),GetPosY())){ //Check out of bounds condition
+              navigation_state = OUT_OF_BOUNDS;
       } else if(navInput4 < hard_heading_threshold+1 && Rsum < Lsum){ //Stop and turn left
     	  navigation_state = STOP_LEFT;
       } else if(navInput4 < hard_heading_threshold+1 && Rsum > Lsum){ //Stop and turn right
@@ -154,6 +163,32 @@ void avoiderPeriodic(void)
     	  navigation_state = SOFT_LEFT;
       } else{
     	  navigation_state = SLOW_STRAIGHT;
+      }
+      break;
+
+    case OUT_OF_BOUNDS: // The drone is out of bounds and turns around
+      printf("OUT_OF_BOUNDS \n");
+      // go backwards
+      guidance_h_set_guided_body_vel(-1, 0);
+      // start turn back into arena
+      // guidance_h_set_guided_heading_rate(stop_heading_rate);
+
+      current_heading_rate = 0;
+      current_velocity = -1;
+
+      navigation_state = REENTER_ARENA;
+
+      break;
+
+    case REENTER_ARENA:
+      printf("REENTER_ARENA \n");
+      // return to heading mode
+      guidance_h_set_guided_body_vel(0, 0);
+      current_velocity = 0;
+      if(!InsideObstacleZone(GetPosX(),GetPosY())){ //Check out of bounds condition
+    	  navigation_state = OUT_OF_BOUNDS;
+      } else{
+      navigation_state = STOP_LEFT;
       }
       break;
 
@@ -245,6 +280,7 @@ void avoiderPeriodic(void)
   return;
 
 }
+
 
 /*############################################
 -------------------OLD CODE-------------------
