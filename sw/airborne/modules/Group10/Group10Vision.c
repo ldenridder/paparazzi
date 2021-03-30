@@ -33,9 +33,9 @@ struct image_t *imageProcess(struct image_t *image){
 	}
 	int green[4] = {0,0,0,0};
 
-	//printf("check if here \n");
+	printf("check if here \n");
 	green_detect(image,X,Y,green);
-	printf("check if here past green detection \n");
+	//printf("check if here past green detection \n");
 	int green1 = green[0];
 	int green2 = green[1];
 	int green3 = green[2];
@@ -80,7 +80,7 @@ struct image_t *imageProcess(struct image_t *image){
 
 	
 
-	int hmat_z_new[X*Y];
+	//int hmat_z_new[X*Y];
 /*
 	printf("before noise fileter: \n");
 	for(y=0;y<Y;y++){
@@ -89,8 +89,11 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-*/
-	noiseFilter(hmat_z, hmat_z_new, X,Y);
+*/	
+
+	//printf("yeah here");
+	noiseFilter(hmat_z,X,Y);
+	//printf("Noise filter okay");
 	/*
 	printf("after noise fileter: \n");
 	for(y=0;y<Y;y++){
@@ -99,7 +102,7 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-	
+
 */
 	cluster_creator(hmat_z, X, Y, cluster);
 

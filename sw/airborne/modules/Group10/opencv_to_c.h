@@ -12,7 +12,7 @@ extern "C"
 #endif
   
   //int imageProcess(char *img, int width, int height);
-  void noiseFilter(int *p_hmat_z,int *hmat_z_new, int X,int Y);
+  void noiseFilter(int *p_hmat_z, int X,int Y);
   void maximumBoxFilter(int n, int *p_hmat_z);
   //void getImage();
   //int getDist();
