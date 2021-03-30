@@ -34,11 +34,11 @@ float slow_velocity = 1.f;  		 	// slow flight speed (used for turning) [m/s]
 float soft_heading_rate = 3.14159f/12;	// soft heading rate [rad/s]
 float hard_heading_rate = 3.14159f/6; 	// fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;   // stop heading rate [rad/s]
-int floor_count_threshold = 300;	 	// threshold for the green pixel count
-int straight_heading_threshold = 2;	    // threshold straight
-int soft_heading_threshold = 1;	     	// threshold slow
-int hard_heading_threshold = 0;		    // threshold hard
-int stop_heading_threshold = -1;	 	// threshold stop
+int floor_count_threshold = 800;	 	// threshold for the green pixel count
+int straight_heading_threshold = 3;	    // threshold straight
+int soft_heading_threshold = 2;	     	// threshold slow
+int hard_heading_threshold = 1;		    // threshold hard
+int stop_heading_threshold = 0;	 	    // threshold stop
 
 
 
@@ -118,22 +118,34 @@ void avoiderPeriodic(void)
     case DIRECTION:
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
-      if(green_1 <floor_count_threshold && green_1 < green_2){ // floor count is compared to the lower threshold
+      if(green_1 < floor_count_threshold && green_1 < green_2){ // floor count is compared to the threshold
         i = 0;
     	navigation_state = STOP_LEFT_FLOOR;
-      } else if(green_2 <floor_count_threshold){ // floor count is compared to the lower threshold
+      } else if(green_2 < floor_count_threshold){ // floor count is compared to the threshold
         i = 0;
     	navigation_state = STOP_RIGHT_FLOOR;
-      } else if(navInput4 > straight_heading_threshold){ //Fly straight when possible
+      } else if(navInput3 > straight_heading_threshold && navInput4 > straight_heading_threshold && navInput5 > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
-      } else if(navInput4 > soft_heading_threshold && navInput3 > soft_heading_threshold+1 && navInput3 > navInput5){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
-        navigation_state = SOFT_LEFT;
-      } else if(navInput4 > soft_heading_threshold && navInput5 > soft_heading_threshold+1){
+
+        // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
+      } else if(navInput4 > soft_heading_threshold){
+    	  if(navInput4 > navInput3 && navInput5 > navInput3){
+          navigation_state = SOFT_RIGHT;
+    	  }
+    	  else{
+          navigation_state = SOFT_LEFT;
+    	  }
+        // Check if an object is at some distance whether a soft left or soft right are prefferable
+      } else if(navInput3 > soft_heading_threshold && navInput4 > navInput3 && navInput5 > navInput3){
         navigation_state = SOFT_RIGHT;
-      } else if(navInput4 > soft_heading_threshold && navInput2 > soft_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
+      } else if(navInput5 > soft_heading_threshold && navInput4 > navInput5 && navInput3 > navInput5){ // Check if an object is in the straight line at some distance whether a soft left or soft right are prefferable
+        navigation_state = SOFT_LEFT;
+
+      } else if(navInput4 > hard_heading_threshold && navInput2 > hard_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is in a straight line at some distance and soft left and soft right are also not great, whether hard left or right is better
      	navigation_state = HARD_LEFT;
-      } else if(navInput4 > soft_heading_threshold && navInput5 > soft_heading_threshold+1){
+      } else if(navInput4 > hard_heading_threshold && navInput5 > hard_heading_threshold+1){
         navigation_state = HARD_RIGHT;
+
       } else if(navInput4 > soft_heading_threshold){ //Fly slower straight
         navigation_state = SLOW_STRAIGHT;
       } else if(navInput4 > hard_heading_threshold && navInput2 > hard_heading_threshold+1 && navInput2 > navInput5){ // Check if an object is closer by whetehr hard left or hard right is a good way to fly towards
@@ -154,7 +166,7 @@ void avoiderPeriodic(void)
 
 
 	  current_velocity = 0;
-	  if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+	  if(i == 3){ // After three iterations the 90 degrees rotations is achieved
 		guidance_h_set_guided_heading_rate(0);
 		current_heading_rate = 0; //The heading rate is set to 0, so the drone is completely still
 		navigation_state = DIRECTION;
@@ -170,7 +182,7 @@ void avoiderPeriodic(void)
 	  guidance_h_set_guided_body_vel(0, 0);
 
 	  current_velocity = 0;
-	  if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+	  if(i == 3){ // After three iterations the 90 degrees rotations is achieved
 		guidance_h_set_guided_heading_rate(0);
 		current_heading_rate = 0; //The heading rate is set to 0, so the drone is completely still
 		navigation_state = DIRECTION;

@@ -20,18 +20,18 @@ inline void setGuided(void){
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
     <waypoint alt="0.6" name="CLIMB" x="1.9" y="1.0"/>
-    <waypoint name="STDBY" x="1.9" y="1.0"/>
-    <waypoint name="TD" x="0.8" y="-1.7"/>
-    <waypoint name="GOAL" x="1.9" y="1.0"/>
-    <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
-    <waypoint lat="51.990584" lon="4.376775" name="_CZ1"/>
-    <waypoint lat="51.990643" lon="4.376716" name="_CZ2"/>
-    <waypoint lat="51.990679" lon="4.376807" name="_CZ3"/>
-    <waypoint lat="51.990621" lon="4.376870" name="_CZ4"/>
-    <waypoint lat="51.990595" lon="4.376779" name="_OZ1"/>
-    <waypoint lat="51.990640" lon="4.376734" name="_OZ2"/>
-    <waypoint lat="51.990667" lon="4.376804" name="_OZ3"/>
-    <waypoint lat="51.990623" lon="4.376850" name="_OZ4"/>
+    <waypoint alt="0.6" name="STDBY" x="1.9" y="1.0"/>
+    <waypoint alt="0.6" name="TD" x="0.8" y="-1.7"/>
+    <waypoint alt="0.6" name="GOAL" x="1.9" y="1.0"/>
+    <waypoint alt="0.6" name="TRAJECTORY" x="1.9" y="1.0"/>
+    <waypoint lat="51.990580" lon="4.376770" name="_CZ1"/>
+    <waypoint lat="51.990648" lon="4.376701" name="_CZ2"/>
+    <waypoint lat="51.990686" lon="4.376806" name="_CZ3"/>
+    <waypoint lat="51.990621" lon="4.376875" name="_CZ4"/>
+    <waypoint lat="51.990587" lon="4.376772" name="_OZ1"/>
+    <waypoint lat="51.990643" lon="4.376715" name="_OZ2"/>
+    <waypoint lat="51.990677" lon="4.376807" name="_OZ3"/>
+    <waypoint lat="51.990623" lon="4.376864" name="_OZ4"/>
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">
