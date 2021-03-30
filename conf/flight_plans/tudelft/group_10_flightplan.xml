@@ -24,10 +24,10 @@ inline void setGuided(void){
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="GOAL" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
-    <waypoint lat="51.990584" lon="4.376775" name="_CZ1"/>
-    <waypoint lat="51.990643" lon="4.376716" name="_CZ2"/>
-    <waypoint lat="51.990679" lon="4.376807" name="_CZ3"/>
-    <waypoint lat="51.990621" lon="4.376870" name="_CZ4"/>
+    <waypoint lat="51.990581" lon="4.376775" name="_CZ1"/>
+    <waypoint lat="51.990642" lon="4.376712" name="_CZ2"/>
+    <waypoint lat="51.990681" lon="4.376808" name="_CZ3"/>
+    <waypoint lat="51.990620" lon="4.376873" name="_CZ4"/>
     <waypoint lat="51.990595" lon="4.376779" name="_OZ1"/>
     <waypoint lat="51.990640" lon="4.376734" name="_OZ2"/>
     <waypoint lat="51.990667" lon="4.376804" name="_OZ3"/>
