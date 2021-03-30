@@ -12,7 +12,7 @@
 
 /*The following funciton is a modification of the main branch. It does not use cpp. All image processing is done here, then the vector of allowable directions is messaged through abi*/
 struct image_t *imageProcess(struct image_t *image){
-
+//Initialize variables and arrays
 	int X = 520; int Y = 240;
 	int n_rows = 10; int n_columns = 7;
 	int grid_height = Y/n_rows;
@@ -32,33 +32,25 @@ struct image_t *imageProcess(struct image_t *image){
 		hmat_z[i]=0;
 	}
 	int green[4] = {0,0,0,0};
+	int hmat_z_new[X*Y];
 
-	//printf("check if here \n");
+//Detect amount of green in image. This will be used for boundary detection
 	green_detect(image,X,Y,green);
-	printf("check if here past green detection \n");
+	green_detect(image,X,Y,green);
+
 	int green1 = green[0];
 	int green2 = green[1];
 	int green3 = green[2];
 	int green4 = green[3];
-    	printf("green: %d,%d,%d,%d \n",green1,green2,green3,green4);
 
-	//Convert image to greyscale
+	//Convert image to greyscale and load to imageValues
 	image_to_grayscale(image,image);
-
 	uint8_t *imageValues = image->buf;
 
 	
 	//Convert image to array, keeping in mind that we need to transpose it.
 	int x; int y;
 	int k = 1;
-	/*
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			img[y*X+x] = imageValues[k];
-			k += 2;
-		}
-	}
-	*/
 	for(x=0;x<X;x++){
 		for(y=(Y-1);y>=0;y--){
 			img[y*X+x] = imageValues[k];
@@ -66,53 +58,26 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 	}
 
-	
 	//Perform object detection
-	grad_x(img,x_grad,X,Y);
-	grad_y(img,y_grad,X,Y);
-	grad_x(x_grad,xx_grad,X,Y);
-	grad_y(y_grad,yy_grad,X,Y);
-	grad_y(x_grad,xy_grad,X,Y);
-	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y);
+	grad_x(img,x_grad,X,Y); //Find x gradient
+	grad_y(img,y_grad,X,Y); //Find y gradient
+	grad_x(x_grad,xx_grad,X,Y); //Find xx gradient
+	grad_y(y_grad,yy_grad,X,Y); //Find yy gradient
+	grad_y(x_grad,xy_grad,X,Y); //Find xy gradient
+	shape_ind(xx_grad,yy_grad,xy_grad,shape_index,X,Y); //Compute shape index
+	//Compute the hessian matrix
 	hmat_z_func(img,shape_index,hmat_z,-0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
-
 	
-
-	int hmat_z_new[X*Y];
-/*
-	printf("before noise fileter: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",hmat_z[y*X+x]);
-		}
-		printf("\n");
-	}
-*/
-	noiseFilter(hmat_z, hmat_z_new, X,Y);
-	/*
-	printf("after noise fileter: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",hmat_z[y*X+x]);
-		}
-		printf("\n");
-	}
+	//Filter out noise
+	noiseFilter(hmat_z,X,Y);
 	
-*/
+	//Create and filter clusters
 	cluster_creator(hmat_z, X, Y, cluster);
-
 	cluster_filter(cluster, X, Y, filteredImage);
-/*
-	printf("filteredImage: \n");
-	for(y=0;y<Y;y++){
-		for(x=0;x<X;x++){
-			printf("%d ",filteredImage[y*X+x]);
-		}
-		printf("\n");
-	}
-*/
+
+	//Fill occupancy grid
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
 
 	printf("GRID: \n");
@@ -123,7 +88,7 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	
-	
+	//Convert occupancy grid to nav input	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
 	printf("NAV INPUT: \n");
@@ -132,6 +97,7 @@ struct image_t *imageProcess(struct image_t *image){
 	}
 	printf("\n");
 
+	//Extract nav inputs for each flight lane and send via Abi
 	int allowableDistance1 = navInput[0];
 	int allowableDistance2 = navInput[1];
 	int allowableDistance3 = navInput[2];
@@ -160,7 +126,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 		
 	  uint8_t *buf = image->buf;
 	  buf ++;
-	  //printf("Test");
+
 	  for (int x=0;x<X;x++){
 	    for (int y=0;y<Y;y++){
 
@@ -175,58 +141,44 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 				a = x - X/2;
 				b = y - Y/2;
 				c = 2 * ((a >= 0) - (a < 0)) + ((b >= 0) - (b < 0));
-				//printf("right before switch \n");
+
 				switch (c){
-				  case  3: //4
+				  case  3: //Top left quadrant
 					green[3]++;
-					//printf("X,Y %d, %d", x,y);
 					break;
-				  case -3: //1
+				  case -3: //Bottom right quadrant
 					green[0]++;
-					//printf("X,Y %d, %d", x,y);
 					break;
-				  case -1: //3
+				  case -1: //Bottom left quadrant
 					green[1]++;
 					break;
-				  case  1: //2
+				  case  1: //Top right quadrant
 					green[2]++;
 					break;
 				  default:
 					break;
 				}
-				//printf("we zijn tot hier gekomen \n");
-				//break;
 	    		}
-		//printf("maar nu zijn we hier %d \n", x);
-		//printf("maar nu zijn we hier %d \n", y);
 	    	buf += 3; // each pixel has two bytes
-		//printf("crashed die hier? %d \n", buf);
 	    }
-		//printf("buiten de y loop %d \n", x);
 	  }
-	  //printf("Test3");
 
 	  return;
 }
 
 
 void visionInit(void){
+	//Subscribe to front camera and run imageProcess function at camera FPS
 	cv_add_to_device(&VIDEO_CAPTURE_CAMERA, imageProcess, PROCESS_FPS);
 
 }
-
-
-
-
-
-
 
 void cluster_creator(int *p_img, int X, int Y, int *cluster)
 {
 	int visited[X*Y];
 	int v;
 	for(v=0;v<X*Y;v++){
-		visited[v]=0;
+		visited[v]=0; 
 }
 	int running_cluster_ind=0;
 	int recursive_depth_stopper=0;
@@ -235,9 +187,10 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 	{
 		for(j=0;j<X;j++)
 		{
+		//If not visited and image is occupied, check neighbours
 		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster, &recursive_depth_stopper);} 
-		running_cluster_ind +=1;
-		recursive_depth_stopper =0;
+		running_cluster_ind +=1; //Increase cluster size
+		recursive_depth_stopper =0; //Reset recursive depth condition
 		}
 	}
 }
@@ -249,13 +202,16 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 	int neighb_i[8]={-1,-1,-1,0,0,1,1,1};	//{-1,0,0,1};
 	int neighb_j[8]={-1,0,+1,-1,1,-1,0,1}; //{0,-1,1,0};
 
+	//Set pixel to visited
 	visited[i*X + j]= 1;
 
+	//Add to cluster array
 	cluster[*running_cluster_ind] = i*X + j;
 
 	*running_cluster_ind += 1;
 	*recursive_depth_stopper +=1;
-	//printf("recursive_depth_stopper %d \n", *recursive_depth_stopper);
+
+	//Loop recursively through all neighbours until end of cluster is found
 	for(k=0; k<8; k++) 
 	{	
 		int nbp_i = i+neighb_i[k];
@@ -291,7 +247,7 @@ int Check_Save(int i, int j, int visited_point, int image_point, int X, int Y){
 	return return_result;
 }
 
-
+//Removes clusters if too small; this gets rid of any noise in detected objects
 void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	int i;
 	int j;
@@ -321,8 +277,6 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 	return;
 }
 
-//Helper functions
-
 
 void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_index, int X, int Y)
 {
@@ -335,6 +289,7 @@ void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_i
 	{
 		for(j=0;j<X;j++)
 		{
+			//Compute shape index of the gradients
 			T = p_xx_grad[i*X+j] + p_yy_grad[i*X+j];
 			D = (p_xx_grad[i*X+j])*(p_yy_grad[i*X+j]) - (p_xy_grad[i*X+j])*(p_xy_grad[i*X+j]);
 			L1 = 0.5*T + sqrt((T*T)/4 - D);
@@ -360,6 +315,7 @@ void shape_ind(int *p_xx_grad, int *p_yy_grad, int *p_xy_grad, double *p_shape_i
 	return;
 }
 
+//Compute gradient in x-direction of the greyscale image
 void grad_x(int *p_img, int *p_x_grad, int X, int Y)
 {
 	int i, j;
@@ -384,6 +340,7 @@ void grad_x(int *p_img, int *p_x_grad, int X, int Y)
 	return;
 }
 
+//Compute gradient in the y-direction of greyscale image
 void grad_y(int *p_img, int *p_y_grad, int X, int Y)
 {
 	int i, j;
@@ -407,6 +364,7 @@ void grad_y(int *p_img, int *p_y_grad, int X, int Y)
 	}
 }
 
+//Compute the hessian matrix based on the shape index
 void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget, int X, int Y){
 	float hdelta = 0.05;
 	int x, y;
@@ -420,56 +378,13 @@ void hmat_z_func(int *p_img, double *p_shape_index, int *p_hmat_z, float htarget
 	return;
 }
 
-/* The following function estimates the horizon based on the pitch and roll angles */
-void horizonEstimator(int theta, int phi, int pitchGain, int Y, float *m, float *b)
-{
-	*b = (Y/2) - pitchGain*theta;
-	*m = tan(phi*(M_PI/180.0));
-	return;
-}
-
-/* The following function returns 1 if an object is completely above or below the horizon, meaning it should be filtered out. Includes a buffer zone */
-//img here denotes the array for one object
-int HorizonFilter(int *img, float m, float b, int BUFFER, int X, int Y)
-{
-	//Needs to be checked
-	int i, j;
-	int xMin = 1000, yMin = 1000, xMax = -1, yMax = -1;
-	int y1,y2,y3,y4,x1,x2,x3,x4;
-	for(i = 0; i < Y; i++)
-	{
-		for(j = 0; j < X; j++)
-		{
-			if(img[i*X + j] != 0)
-			{
-				if(i > yMax){yMax = i;}
-				if(i < yMin){yMin = i;}
-				if(j > xMax){xMax = j;}
-				if(j < xMin){xMin = j;} 
-			}
-		}
-	}
-	y1 = y2 = yMin;
-	y3 = y4 = yMax;
-	x1 = x3 = xMin;
-	x2 = x4 = xMax;
-	
-	if((y1 < (m*x1 + b - BUFFER)) && (y2 < (m*x2 + b - BUFFER)) && (y3 < (m*x3 + b - BUFFER)) && (y4 < (m*x4 + b - BUFFER)))
-	{
-		return 1; //Filter out object (true)
-	}
-	else if((y1 > (m*x1 + b + BUFFER)) && (y2 > (m*x2 + b + BUFFER)) && (y3 > (m*x3 + b + BUFFER)) && (y4 > (m*x4 + b + BUFFER)))
-	{
-		return 1; //Filter out object (true)
-	}
-	else {return 0;} //Keep object (false)
-}
 
 //img here is for the entire image, after filtering out some objects
 int array_find(int *img, int i, int j, int X, int grid_height, int grid_width)
 {
 	int k, l;
 	int sum = 0;
+	//Loop through each of the pixels in the current grid square and populate occupancy grid if more than 10% of the grid is occupied 
 	for(k=(i*grid_height); k<((i+1)*grid_height); k++)
 	{
 		for(l=(j*grid_width); l<((j+1)*grid_width); l++)
@@ -486,15 +401,14 @@ int array_find(int *img, int i, int j, int X, int grid_height, int grid_width)
 }
 
 //img here is for the entire image, after filtering out some objects (240x520)
-//grid is (9x7)
+//grid is (10x7)
 //n_rows number of rows in the grid
 //n_columns number of columns in the grid
 void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_height, int grid_width, int X)
 {
-	//img here is after filtering, so all objects remaining are compiled into one image and need to be avoided
-	//grid_height and grid_width are the height and width of each square in the grid
 	int i, j;
 	
+	//Populate each grid square based on filtered image
 	for(i=0; i<n_rows; i++)
 	{
 		for(j=0; j<n_columns; j++)
@@ -505,6 +419,7 @@ void grid_counter(int *img, int *p_grid, int n_rows, int n_columns, int grid_hei
 	return;
 }
 
+//Find the maximum possible distance to travel in image space based on the occupancy grid
 void output_conversion(int *p_grid, int *p_navInput, int n_columns, int n_rows)
 {
 	int i, j;
