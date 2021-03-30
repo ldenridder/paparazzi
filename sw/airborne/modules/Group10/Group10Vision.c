@@ -16,7 +16,7 @@ struct image_t *imageProcess(struct image_t *image){
 	int X = 520; int Y = 240;
 	int n_rows = 10; int n_columns = 7;
 	int grid_height = Y/n_rows;
-	int grid_width = X/n_rows;
+	int grid_width = X/n_columns;
 	int img[X*Y];
 	int x_grad[X*Y], y_grad[X*Y], xx_grad[X*Y], yy_grad[X*Y], xy_grad[X*Y];
 	double shape_index[X*Y];
@@ -81,6 +81,7 @@ struct image_t *imageProcess(struct image_t *image){
 	
 
 	int hmat_z_new[X*Y];
+/*
 	printf("before noise fileter: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -88,7 +89,7 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-
+*/
 	noiseFilter(hmat_z, hmat_z_new, X,Y);
 	/*
 	printf("after noise fileter: \n");
@@ -159,7 +160,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 		
 	  uint8_t *buf = image->buf;
 	  buf ++;
-	  printf("Test");
+	  //printf("Test");
 	  for (int x=0;x<X;x++){
 	    for (int y=0;y<Y;y++){
 
@@ -203,7 +204,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 	    }
 		//printf("buiten de y loop %d \n", x);
 	  }
-	  printf("Test3");
+	  //printf("Test3");
 
 	  return;
 }
@@ -259,7 +260,7 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 	{	
 		int nbp_i = i+neighb_i[k];
 		int nbp_j = j+neighb_j[k];
-		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1 && *recursive_depth_stopper<5000){
+		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1 && *recursive_depth_stopper<3000){
 			Check_NB(nbp_i, nbp_j,  visited, p_img, running_cluster_ind, X, Y, cluster, recursive_depth_stopper);
 		} 
 	}
@@ -302,7 +303,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 3000){
+			if((i-firstIndex) < 2000){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}
@@ -468,14 +469,16 @@ int HorizonFilter(int *img, float m, float b, int BUFFER, int X, int Y)
 int array_find(int *img, int i, int j, int X, int grid_height, int grid_width)
 {
 	int k, l;
-	//int sum = 0;
+	int sum = 0;
 	for(k=(i*grid_height); k<((i+1)*grid_height); k++)
 	{
 		for(l=(j*grid_width); l<((j+1)*grid_width); l++)
 		{
 			if(img[k*X + l] > 0)
 			{
-				return 1;
+				sum++;
+				if(sum>200){
+				return 1;}
 			}
 		}
 	}
