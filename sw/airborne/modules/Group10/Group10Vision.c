@@ -33,13 +33,14 @@ struct image_t *imageProcess(struct image_t *image){
 	}
 	int green[4] = {0,0,0,0};
 
-
+	//printf("check if here \n");
 	green_detect(image,X,Y,green);
+	printf("check if here past green detection \n");
 	int green1 = green[0];
 	int green2 = green[1];
 	int green3 = green[2];
 	int green4 = green[3];
-    printf("green: %d,%d,%d,%d \n",green1,green2,green3,green4);
+    	printf("green: %d,%d,%d,%d \n",green1,green2,green3,green4);
 
 	//Convert image to greyscale
 	image_to_grayscale(image,image);
@@ -77,16 +78,27 @@ struct image_t *imageProcess(struct image_t *image){
 	hmat_z_func(img,shape_index,hmat_z,0.5,X,Y);
 	hmat_z_func(img,shape_index,hmat_z,0,X,Y);
 
+	
 
-	noiseFilter(hmat_z,X,Y);
-/*	
-	printf("HMAT_Z: \n");
+	int hmat_z_new[X*Y];
+	printf("before noise fileter: \n");
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
 			printf("%d ",hmat_z[y*X+x]);
 		}
 		printf("\n");
 	}
+
+	noiseFilter(hmat_z, hmat_z_new, X,Y);
+	/*
+	printf("after noise fileter: \n");
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			printf("%d ",hmat_z[y*X+x]);
+		}
+		printf("\n");
+	}
+	
 */
 	cluster_creator(hmat_z, X, Y, cluster);
 
@@ -101,7 +113,7 @@ struct image_t *imageProcess(struct image_t *image){
 	}
 */
 	grid_counter(filteredImage,grid,n_rows,n_columns,grid_height,grid_width,X);
-/*
+
 	printf("GRID: \n");
 	for(y=0;y<n_rows;y++){
 		for(x=0;x<n_columns;x++){
@@ -109,7 +121,7 @@ struct image_t *imageProcess(struct image_t *image){
 		}
 		printf("\n");
 	}
-	*/
+	
 	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
@@ -144,14 +156,14 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 	  int a = 0;
 	  int b = 0;
 	  int c = 0;
-
+		
 	  uint8_t *buf = image->buf;
 	  buf ++;
-//	  printf("Test");
+	  printf("Test");
 	  for (int x=0;x<X;x++){
 	    for (int y=0;y<Y;y++){
 
-	    	if (
+	    	if(
 				(buf[1] >= y_min)
 				&& (buf[1] <= y_max)
 				&& (buf[0] >= u_min)
@@ -162,6 +174,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 				a = x - X/2;
 				b = y - Y/2;
 				c = 2 * ((a >= 0) - (a < 0)) + ((b >= 0) - (b < 0));
+				//printf("right before switch \n");
 				switch (c){
 				  case  3: //4
 					green[3]++;
@@ -180,12 +193,17 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 				  default:
 					break;
 				}
+				//printf("we zijn tot hier gekomen \n");
 				//break;
 	    		}
+		//printf("maar nu zijn we hier %d \n", x);
+		//printf("maar nu zijn we hier %d \n", y);
 	    	buf += 3; // each pixel has two bytes
+		//printf("crashed die hier? %d \n", buf);
 	    }
+		//printf("buiten de y loop %d \n", x);
 	  }
-//	  printf("Test3");
+	  printf("Test3");
 
 	  return;
 }
@@ -227,8 +245,8 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 {	
 	
 	int k; 
-	int neighb_i[8]={-1,-1,-1,0,0,1,1,1};
-	int neighb_j[8]={-1,0,+1,-1,1,-1,0,1};
+	int neighb_i[8]={-1,-1,-1,0,0,1,1,1};	//{-1,0,0,1};
+	int neighb_j[8]={-1,0,+1,-1,1,-1,0,1}; //{0,-1,1,0};
 
 	visited[i*X + j]= 1;
 
@@ -241,7 +259,7 @@ void Check_NB(int i, int j, int *visited, int *p_img, int *running_cluster_ind, 
 	{	
 		int nbp_i = i+neighb_i[k];
 		int nbp_j = j+neighb_j[k];
-		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1 && *recursive_depth_stopper<2500){
+		if(Check_Save(nbp_i, nbp_j, visited[(nbp_i)*X + nbp_j], p_img[(nbp_i)*X + nbp_j], X, Y)==1 && *recursive_depth_stopper<5000){
 			Check_NB(nbp_i, nbp_j,  visited, p_img, running_cluster_ind, X, Y, cluster, recursive_depth_stopper);
 		} 
 	}
@@ -284,7 +302,7 @@ void cluster_filter(int *cluster, int X, int Y, int *filteredImage){
 			firstIndex = i;
 		}
 		else if(cluster[i] == -1 && firstIndex != -1){
-			if((i-firstIndex) < 2000){
+			if((i-firstIndex) < 3000){
 				for(j=firstIndex;j<i;j++){
 					cluster[j] = -1;
 				}

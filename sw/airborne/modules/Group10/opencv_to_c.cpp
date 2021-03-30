@@ -6,24 +6,63 @@ using namespace std;
 using namespace cv;
 #include "opencv_image_functions.h"
 
-void noiseFilter(int *p_hmat_z,int X,int Y){
+void noiseFilter(int *p_hmat_z,int *hmat_z_new, int X,int Y){
 	//printf("We got here");
 	int x,y;
 
 	//int Hmat_z[X*Y];
-	//maximumBoxFilter(3,p_hmat_z,Hmat_z);
-/*
+	maximumBoxFilter(10,p_hmat_z);
+
 	int i,j;
-	printf("hmat after max filter ");
+	
+	
+	int vmat_z[X*Y];
+
+	for(x=0;x<X*Y;x++){
+		vmat_z[x] = *(p_hmat_z + x);
+	}
+	
+	
+
+	int fch = 50;
+	for(y=0;y<Y;y++){
+		for(x=0;x<X;x++){
+			if(p_hmat_z[y*X+x] < fch){
+				vmat_z[y*X+x] = 0;
+			}
+			else{
+				vmat_z[y*X+x] = 1;
+			}
+		}
+	}
+
+	//int w;
+
+	/*printf("vmat_z \n");
+	for(w=0;w<100;w++){
+		printf("%f ", vmat_z[w]);
+	}*/
+	
+	
+
+	for(x=0;x<X*Y;x++){
+		p_hmat_z[x] = vmat_z[x];
+		
+	}
+/*
+	printf("v_mat after max filter ");
 	for(i=0;i<Y;i++){
 		for(j=0;j<X;j++){
-			printf("%d ", Hmat_z[i*X+j]);
+			printf("%d ", vmat_z[i*X+j]);
 		}
 	printf("\n");
 }
 */
+	return; 
+}
 
 
+/*
 	int fch = 50;
 	for(y=0;y<Y;y++){
 		for(x=0;x<X;x++){
@@ -37,13 +76,50 @@ void noiseFilter(int *p_hmat_z,int X,int Y){
 	}
 	return;
 }
+*/
 
-void maximumBoxFilter(int n, int *p_hmat_z, int *Hmat_z){
+void maximumBoxFilter(int n, int *p_hmat_z){
+
+	int i,j;
+
+	int array[520][240];
+
+
+	for(i=0;i<240;i++){
+		for(j=0;j<520;j++){
+			array[j][i] = p_hmat_z[i*520+j];
+		}
+	}
+	
+	/*
 	Mat M(240,520,CV_8UC1,p_hmat_z);
 	Mat imageResult;
 	Mat element = getStructuringElement(MORPH_RECT, Size(n,n),Point(-1,-1));
 	//morphologyEx(M, imageResult, MORPH_CLOSE, element);
 	dilate(M, imageResult,element);
+	*/
+	Mat M(520,240,CV_8U,array);
+	Mat imageResult;
+	Mat element = getStructuringElement(MORPH_RECT, Size(2*n+1,2*n +1),Point(n,n));
+	//morphologyEx(M, imageResult, MORPH_CLOSE, element);
+	dilate(M, imageResult,element,Point(-1,-1),1);
+
+
+
+	std::vector<int> result;
+
+	if (imageResult.isContinuous()) {
+  	// array.assign((float*)mat.datastart, (float*)mat.dataend); // <- has problems for submatrix like mat = big_mat.row(i)
+	  result.assign((int*)imageResult.data, (int*)imageResult.data + imageResult.total()*imageResult.channels());} 
+	else {
+  		for (int i = 0; i < imageResult.rows; ++i) {
+    	result.insert(result.end(), imageResult.ptr<int>(i), imageResult.ptr<int>(i)+imageResult.cols*imageResult.channels());
+  		}
+	}
+
+	p_hmat_z = result.data();
+
+
 	return;
 }
 
