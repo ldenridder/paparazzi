@@ -52,7 +52,8 @@ struct image_t *imageProcess(struct image_t *image){
 	int k = 1;
 	for(x=0;x<X;x++){
 		for(y=(Y-1);y>=0;y--){
-			if(k>249599){break;}
+			if(k>249599){fprintf(stderr,"Error message");
+				break;}
 			img[y*X+x] = imageValues[k];
 			k += 2;
 		}
@@ -88,8 +89,8 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	
-	//printf("GREEN DETECTION: \n");
-	//printf("%d, %d, %d, %d \n",green1,green2,green3,green4);
+	printf("GREEN DETECTION: \n");
+	printf("%d, %d, %d, %d \n",green1,green2,green3,green4);
 
 	//Convert occupancy grid to nav input	
 	output_conversion(grid,navInput,n_columns,n_rows);
@@ -117,10 +118,10 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 100; //nps:60 | ap:100
+	  int y_min = 100;  //nps:60 | ap:100
 	  int y_max = 150; //nps:110| ap:150
 	  int u_min = 90;  //nps:65 | ap:90
-	  int u_max = 120; //nps:90 | ap:120
+	  int u_max = 120;  //nps:90 | ap:120
 	  int v_min = 110; //nps:110| ap:110
 	  int v_max = 140; //nps:140| ap:140
 	  int a = 0;
@@ -129,9 +130,10 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 		
 	  uint8_t *buf = image->buf;
 
-	  for (int x=0;x<X;x+=2){
-	    for (int y=0;y<Y;y++){
-
+	  for(int y=0;y<Y;y++){
+	    for(int x=0;x<X-2;x+=2){
+	    	if (buf > image->buf_size + image->buf) { fprintf(stderr, "SEGFAULT!\n");
+	    	printf("%d x %d, %d x %d, size %d, %d %d\n" ,x, y, X, Y, image->buf_size, image->w, image->h);}
 	    	if(
 				(buf[1] >= y_min)
 				&& (buf[1] <= y_max)
@@ -164,7 +166,6 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 	    	buf += 4; // each pixel has two bytes
 	    }
 	  }
-
 	  return;
 }
 

@@ -113,7 +113,7 @@ void avoiderPeriodic(void)
   }
 
  Lsum = navInput1 + navInput2 + navInput3; //Sum of detection left
- Rsum = navInput1 + navInput2 + navInput3; //Sum of detection right
+ Rsum = navInput5 + navInput6 + navInput7; //Sum of detection right
 
  printf("Current velocity: %f \n", current_velocity);
  printf("Current heading rate: %f \n", current_heading_rate);
