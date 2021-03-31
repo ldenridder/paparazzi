@@ -34,11 +34,11 @@ float slow_velocity = 1.f;  		 	// slow flight speed (used for turning) [m/s]
 float soft_heading_rate = 3.14159f/12;	// soft heading rate [rad/s]
 float hard_heading_rate = 3.14159f/6; 	// fast heading rate [rad/s]
 float stop_heading_rate = 3.14159f/2;   // stop heading rate [rad/s]
-int floor_count_threshold = 300;	 	// threshold for the green pixel count
-int straight_heading_threshold = 2;	    // threshold straight
-int soft_heading_threshold = 1;	     	// threshold slow
-int hard_heading_threshold = 0;		    // threshold hard
-int stop_heading_threshold = -1;	 	// threshold stop
+int floor_count_threshold = 750;	 	// threshold for the green pixel count
+int straight_heading_threshold = 3;	    // threshold straight
+int soft_heading_threshold = 2;	     	// threshold slow
+int hard_heading_threshold = 1;		    // threshold hard
+int stop_heading_threshold = 0;	 	// threshold stop
 
 
 
@@ -154,7 +154,7 @@ void avoiderPeriodic(void)
 
 
 	  current_velocity = 0;
-	  if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+	  if(i == 3){ // After three iterations the 90 degrees rotations is achieved
 		guidance_h_set_guided_heading_rate(0);
 		current_heading_rate = 0; //The heading rate is set to 0, so the drone is completely still
 		navigation_state = DIRECTION;
@@ -170,7 +170,7 @@ void avoiderPeriodic(void)
 	  guidance_h_set_guided_body_vel(0, 0);
 
 	  current_velocity = 0;
-	  if(i == 2){ // After three iterations the 90 degrees rotations is achieved
+	  if(i == 3){ // After three iterations the 90 degrees rotations is achieved
 		guidance_h_set_guided_heading_rate(0);
 		current_heading_rate = 0; //The heading rate is set to 0, so the drone is completely still
 		navigation_state = DIRECTION;

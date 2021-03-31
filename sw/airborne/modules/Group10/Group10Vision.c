@@ -97,6 +97,9 @@ struct image_t *imageProcess(struct image_t *image){
 	}
 	printf("\n");
 
+	printf("GREEN DETECTION: \n");
+	printf("%d, %d, %d, %d \n",green1,green2,green3,green4);
+
 	//Extract nav inputs for each flight lane and send via Abi
 	int allowableDistance1 = navInput[0];
 	int allowableDistance2 = navInput[1];
@@ -114,12 +117,12 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 50; //60
-	  int y_max = 120; //150
-	  int u_min = 70; //70
-	  int u_max = 90; //120
-	  int v_min = 110; // 110
-	  int v_max = 140; //140
+	  int y_min = 60; // real: 100  sim: 60
+	  int y_max = 110; //real: 150  sim: 110
+	  int u_min = 65; // real: 90   sim: 65
+	  int u_max = 95; // real: 120  sim: 90
+	  int v_min = 110; //real: 110  sim: 110
+	  int v_max = 140; //real: 140  sim: 140
 	  int a = 0;
 	  int b = 0;
 	  int c = 0;
