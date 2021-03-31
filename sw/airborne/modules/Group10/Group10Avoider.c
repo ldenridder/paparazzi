@@ -122,10 +122,10 @@ void avoiderPeriodic(void)
     case DIRECTION:
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
-      if(green_1 < floor_count_threshold && green_1 < green_2){ // floor count is compared to the threshold
+      if(green_2 < floor_count_threshold && green_2 < green_4){ // floor count is compared to the threshold
         i = 0;
     	navigation_state = STOP_RIGHT_FLOOR;
-      } else if(green_2 < floor_count_threshold){ // floor count is compared to the threshold
+      } else if(green_4 < floor_count_threshold){ // floor count is compared to the threshold
         i = 0;
     	navigation_state = STOP_LEFT_FLOOR;
       } else if(navInput3 > straight_heading_threshold && navInput4 > straight_heading_threshold && navInput5 > straight_heading_threshold){ //Fly straight when possible

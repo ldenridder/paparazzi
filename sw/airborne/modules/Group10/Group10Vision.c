@@ -88,6 +88,9 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	
+	//printf("GREEN DETECTION: \n");
+	//printf("%d, %d, %d, %d \n",green1,green2,green3,green4);
+
 	//Convert occupancy grid to nav input	
 	output_conversion(grid,navInput,n_columns,n_rows);
 	
@@ -114,10 +117,10 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 100;  //nps:60 | ap:100
-	  int y_max = 150; //nps:110| ap:150
-	  int u_min = 90;  //nps:65 | ap:90
-	  int u_max = 120; //nps:90 | ap:120
+	  int y_min = 60; //nps:60 | ap:100
+	  int y_max = 110; //nps:110| ap:150
+	  int u_min = 65;  //nps:65 | ap:90
+	  int u_max = 90; //nps:90 | ap:120
 	  int v_min = 110; //nps:110| ap:110
 	  int v_max = 140; //nps:140| ap:140
 	  int a = 0;
@@ -125,9 +128,8 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 	  int c = 0;
 		
 	  uint8_t *buf = image->buf;
-	  buf ++;
 
-	  for (int x=0;x<X;x++){
+	  for (int x=0;x<X;x+=2){
 	    for (int y=0;y<Y;y++){
 
 	    	if(
@@ -159,7 +161,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 					break;
 				}
 	    		}
-	    	buf += 3; // each pixel has two bytes
+	    	buf += 4; // each pixel has two bytes
 	    }
 	  }
 
