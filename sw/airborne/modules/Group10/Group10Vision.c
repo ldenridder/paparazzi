@@ -36,7 +36,6 @@ struct image_t *imageProcess(struct image_t *image){
 
 //Detect amount of green in image. This will be used for boundary detection
 	green_detect(image,X,Y,green);
-	green_detect(image,X,Y,green);
 
 	int green1 = green[0];
 	int green2 = green[1];
@@ -53,6 +52,7 @@ struct image_t *imageProcess(struct image_t *image){
 	int k = 1;
 	for(x=0;x<X;x++){
 		for(y=(Y-1);y>=0;y--){
+			if(k>249599){break;}
 			img[y*X+x] = imageValues[k];
 			k += 2;
 		}
@@ -114,9 +114,9 @@ struct image_t *imageProcess(struct image_t *image){
 
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
-	  int y_min = 60;  //nps:50 | ap:60
-	  int y_max = 150; //nps:120| ap:150
-	  int u_min = 70;  //nps:70 | ap:70
+	  int y_min = 100;  //nps:60 | ap:100
+	  int y_max = 150; //nps:110| ap:150
+	  int u_min = 90;  //nps:65 | ap:90
 	  int u_max = 120; //nps:90 | ap:120
 	  int v_min = 110; //nps:110| ap:110
 	  int v_max = 140; //nps:140| ap:140
@@ -189,7 +189,7 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 		{
 		//If not visited and image is occupied, check neighbours
 		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster, &recursive_depth_stopper);} 
-		running_cluster_ind +=1; //Increase cluster size
+		cluster[running_cluster_ind] = -1; //Increase cluster size
 		recursive_depth_stopper =0; //Reset recursive depth condition
 		}
 	}
