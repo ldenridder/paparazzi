@@ -118,19 +118,19 @@ struct image_t *imageProcess(struct image_t *image){
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
 	  int y_min = 60; // real: 100  sim: 60
-	  int y_max = 110; //real: 150  sim: 110
+	  int y_max = 110; //real: 155  sim: 110
 	  int u_min = 65; // real: 90   sim: 65
-	  int u_max = 95; // real: 120  sim: 90
+	  int u_max = 95; // real: 120  sim: 95
 	  int v_min = 110; //real: 110  sim: 110
-	  int v_max = 140; //real: 140  sim: 140
+	  int v_max = 140; //real: 145  sim: 140
 	  int a = 0;
 	  int b = 0;
 	  int c = 0;
 		
 	  uint8_t *buf = image->buf;
-	  buf ++;
+	  
 
-	  for (int x=0;x<X;x++){
+	  for (int x=0;x<X;x+=2){
 	    for (int y=0;y<Y;y++){
 
 	    	if(
@@ -146,10 +146,10 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 				c = 2 * ((a >= 0) - (a < 0)) + ((b >= 0) - (b < 0));
 
 				switch (c){
-				  case  3: //Top left quadrant
+				  case  3: //Bottom right quadrant
 					green[3]++;
 					break;
-				  case -3: //Bottom right quadrant
+				  case -3: //Top left quadrant
 					green[0]++;
 					break;
 				  case -1: //Bottom left quadrant
@@ -162,7 +162,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 					break;
 				}
 	    		}
-	    	buf += 3; // each pixel has two bytes
+	    	buf += 4; // Jump to next U-value
 	    }
 	  }
 
@@ -192,7 +192,7 @@ void cluster_creator(int *p_img, int X, int Y, int *cluster)
 		{
 		//If not visited and image is occupied, check neighbours
 		if(visited[i*X+j] == 0 && p_img[i*X+j]==1){Check_NB(i, j, visited, p_img, &running_cluster_ind, X, Y, cluster, &recursive_depth_stopper);} 
-		running_cluster_ind +=1; //Increase cluster size
+		cluster[running_cluster_ind] = -1; //Increase cluster size
 		recursive_depth_stopper =0; //Reset recursive depth condition
 		}
 	}
