@@ -212,10 +212,6 @@
     	<field name="allowableDistance5" type="int">Allowable distance in each trajectory lane</field>
     	<field name="allowableDistance6" type="int">Allowable distance in each trajectory lane</field>
     	<field name="allowableDistance7" type="int">Allowable distance in each trajectory lane</field>
-    	<field name="green1" type="int">Amount of green</field>
-    	<field name="green2" type="int">Amount of green</field>
-    	<field name="green3" type="int">Amount of green</field>
-    	<field name="green4" type="int">Amount of green</field>
     </message>
 
   </msg_class>

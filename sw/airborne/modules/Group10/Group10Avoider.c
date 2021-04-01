@@ -10,12 +10,16 @@
 #define GROUP_10_VERBOSE TRUE
 
 
+#define NAV_C // needed to get the nav functions like Inside...
+#include "generated/flight_plan.h"
+
 /*
 For the navigation it was chosen to make different cases with the default case being direction. This case loops through a decision tree based on the floor count and input from th direction array
 */
 
 enum navigation_state_t {
   DIRECTION,
+  OUT_OF_BOUNDS,
   STOP_LEFT_FLOOR,
   STOP_RIGHT_FLOOR,
   STOP_LEFT,
@@ -41,6 +45,8 @@ int hard_heading_threshold = 1;		    // threshold hard
 int stop_heading_threshold = 0;	 	    // threshold stop
 int Lsum = 0;							// Sum of the left navInputs (1,2,3)
 int Rsum = 0;							// Sum of the right navInputs (5,6,7)
+int i = 0;
+int j = 0;
 
 
 // define and initialise global variables
@@ -49,7 +55,6 @@ float current_velocity = 0.f;							// current velocity [m/s]
 float current_heading_rate = 0.f;						// current heading rate [rad/s]
 int32_t floor_count = 0;             					// green color count from color filter for floor detection
 int32_t floor_centroid = 0;          					// floor detector centroid in y direction (along the horizon)
-int i = 0;												// counter of the green detection
 int navInput1 = 0;										// part of the allowable distance area
 int navInput2 = 0;										// part of the allowable distance area
 int navInput3 = 0;										// part of the allowable distance area
@@ -57,11 +62,6 @@ int navInput4 = 0;										// part of the allowable distance area
 int navInput5 = 0;										// part of the allowable distance area
 int navInput6 = 0;										// part of the allowable distance area
 int navInput7 = 0;										// part of the allowable distance area
-int green_1 = 0;										// part of the green counter
-int green_2 = 0;										// part of the green counter
-int green_3 = 0;										// part of the green counter
-int green_4 = 0;										// part of the green counter
-
 
 #ifndef NAVIGATION_VECTOR_ID
 #endif
@@ -76,11 +76,7 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
 							   int allowableDistance4,
 							   int allowableDistance5,
 							   int allowableDistance6,
-							   int allowableDistance7,
-							   int green1,
-							   int green2,
-							   int green3,
-							   int green4)
+							   int allowableDistance7)
 {
 	navInput1 = allowableDistance1;
 	navInput2 = allowableDistance2;
@@ -89,10 +85,6 @@ static void allowable_distance_cb(uint8_t __attribute__((unused)) sender_id,
 	navInput5 = allowableDistance5;
 	navInput6 = allowableDistance6;
 	navInput7 = allowableDistance7;
-	green_1 = green1;
-	green_2 = green2;
-	green_3 = green3;
-	green_4 = green4;
 }
 
 
@@ -120,14 +112,13 @@ void avoiderPeriodic(void)
  printf("Navigation state: %d \n", navigation_state);
  switch (navigation_state){
     case DIRECTION:
+      i = 0;
+      j = 0;
       guidance_h_set_guided_heading_rate(current_heading_rate); // Head towards the current heading rate (because in the DIRECTION case otherwise no action would be performed)
       guidance_h_set_guided_body_vel(current_velocity,0); // Keep the speed of the current heading rate (because in the DIRECTION case otherwise no action would be performed)
-      if(green_2 < floor_count_threshold && green_2 < green_4){ // floor count is compared to the threshold
-        i = 0;
-    	navigation_state = STOP_RIGHT_FLOOR;
-      } else if(green_4 < floor_count_threshold){ // floor count is compared to the threshold
-        i = 0;
-    	navigation_state = STOP_LEFT_FLOOR;
+      if(!InsideObstacleZone(GetPosX(),GetPosY())){ //Check out of bounds condition
+    	  navigation_state = OUT_OF_BOUNDS;
+ 	     //Check wether the drone can go straight
       } else if(navInput3 > straight_heading_threshold && navInput4 > straight_heading_threshold && navInput5 > straight_heading_threshold){ //Fly straight when possible
         navigation_state = STRAIGHT;
 
@@ -174,20 +165,28 @@ void avoiderPeriodic(void)
       } else{
         navigation_state = STOP_RIGHT;
       }
-      /*
-      } else if(navInput1 > stop_heading_threshold && navInput1 > navInput7){ // If there still is no good option to fly towards, start rotating to either left or right, whichever are the best
-	    navigation_state = STOP_LEFT;
-      } else{
-        navigation_state = STOP_RIGHT;
-      }
-      */
       break;
 
-
+    case OUT_OF_BOUNDS: // The drone is out of bounds and turns around
+      printf("OUT_OF_BOUNDS \n");
+      guidance_h_set_guided_body_vel(0, 0);
+      guidance_h_set_guided_heading_rate(0);
+	  if(j == 6){ // After six iterations enough distance is acheived
+		     if(Rsum > Lsum){
+		    	 navigation_state = STOP_LEFT_FLOOR;
+		     } else{
+		    	 navigation_state = STOP_RIGHT_FLOOR;
+		     }
+	  } else{
+		printf("BACKING_UP \n");
+		guidance_h_set_guided_body_vel(-0.7, 0);
+		navigation_state = OUT_OF_BOUNDS;
+		j++;
+	  }
+	  break;
 
     case STOP_LEFT_FLOOR: //If there is to little floor on the right, the drone will rotate with 90 degrees towards the left
 	  guidance_h_set_guided_body_vel(0, 0);
-
 
 	  current_velocity = 0;
 	  if(i == 3){ // After three iterations the 90 degrees rotations is achieved

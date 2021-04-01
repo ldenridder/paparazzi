@@ -31,16 +31,16 @@ struct image_t *imageProcess(struct image_t *image){
 		filteredImage[i] = 0;
 		hmat_z[i]=0;
 	}
-	int green[4] = {0,0,0,0};
+	//int green[4] = {0,0,0,0};
 	int hmat_z_new[X*Y];
 
 //Detect amount of green in image. This will be used for boundary detection
-	green_detect(image,X,Y,green);
+	//green_detect(image,X,Y,green);
 
-	int green1 = green[0];
-	int green2 = green[1];
-	int green3 = green[2];
-	int green4 = green[3];
+	//int green1 = green[0];
+	//int green2 = green[1];
+	//int green3 = green[2];
+	//int green4 = green[3];
 
 	//Convert image to greyscale and load to imageValues
 	image_to_grayscale(image,image);
@@ -89,8 +89,8 @@ struct image_t *imageProcess(struct image_t *image){
 		printf("\n");
 	}
 	
-	printf("GREEN DETECTION: \n");
-	printf("%d, %d, %d, %d \n",green1,green2,green3,green4);
+	//printf("GREEN DETECTION: \n");
+	//printf("%d, %d, %d, %d \n",green1,green2,green3,green4);
 
 	//Convert occupancy grid to nav input	
 	output_conversion(grid,navInput,n_columns,n_rows);
@@ -110,12 +110,12 @@ struct image_t *imageProcess(struct image_t *image){
 	int allowableDistance6 = navInput[5];
 	int allowableDistance7 = navInput[6];
 
-	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7,green1,green2,green3,green4);
+	AbiSendMsgNAVIGATION_VECTOR(NAVIGATION_VECTOR_ID,allowableDistance1,allowableDistance2,allowableDistance3,allowableDistance4,allowableDistance5,allowableDistance6,allowableDistance7);
 
 	return image;
 }
 
-
+/*
 void green_detect(struct image_t *image, int X, int Y, int *green)
 {
 	  int y_min = 100;  //nps:60 | ap:100
@@ -168,6 +168,7 @@ void green_detect(struct image_t *image, int X, int Y, int *green)
 	  }
 	  return;
 }
+*/
 
 
 void visionInit(void){
